@@ -1,3 +1,4 @@
 # advent-of-code
 
-https://adventofcode.com/
+- Answers for https://adventofcode.com/
+- Requires `python@3.10^`

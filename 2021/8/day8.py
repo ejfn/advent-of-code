@@ -19,29 +19,25 @@ def part1():
 
 
 def determine(input, base):
-    l = len(input)
-    if l == 2:
-        return 1
-    if l == 3:
-        return 7
-    if l == 4:
-        return 4
-    if l == 7:
-        return 8
-    if l == 5:
-        if all(i in input for i in base[1]):
-            return 3
-        elif len(list(filter(lambda i: i not in base[4] + base[7], input))) == 1:
-            return 5
-        else:
-            return 2
-    if l == 6:
-        if any(i not in input for i in base[1]):
-            return 6
-        elif len(list(filter(lambda i: i not in base[4] + base[7], input))) == 1:
-            return 9
-        else:
-            return 0
+    match len(input):
+        case 2: return 1
+        case 3: return 7
+        case 4: return 4
+        case 7: return 8
+        case 5:
+            if all(i in input for i in base[1]):
+                return 3
+            elif len(list(filter(lambda i: i not in base[4] + base[7], input))) == 1:
+                return 5
+            else:
+                return 2
+        case 6:
+            if any(i not in input for i in base[1]):
+                return 6
+            elif len(list(filter(lambda i: i not in base[4] + base[7], input))) == 1:
+                return 9
+            else:
+                return 0
 
 
 def part2():

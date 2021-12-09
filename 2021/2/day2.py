@@ -9,12 +9,10 @@ def part1():
     pos, depth = 0, 0
     for x, y in steps:
         y = int(y)
-        if x == 'forward':
-            pos += y
-        elif x == 'down':
-            depth += y
-        elif x == 'up':
-            depth -= y
+        match x:
+            case 'forward': pos += y
+            case 'down': depth += y
+            case 'up': depth -= y
     return pos * depth
 
 
@@ -22,13 +20,12 @@ def part2():
     pos, depth, aim = 0, 0, 0
     for x, y in steps:
         y = int(y)
-        if x == 'forward':
-            pos += y
-            depth += y * aim
-        elif x == 'down':
-            aim += y
-        elif x == 'up':
-            aim -= y
+        match x:
+            case 'forward':
+                pos += y
+                depth += y * aim
+            case 'down': aim += y
+            case 'up': aim -= y
     return pos * depth
 
 

@@ -52,5 +52,5 @@ def part2():
     return (bc[0] * bc[1] * bc[2])
 
 
-print(part1())
-print(part2())
+print(part1())  # 514
+print(part2())  # 1103130

@@ -52,5 +52,5 @@ def part2():
     return sum
 
 
-print(part1())
-print(part2())
+print(part1())  # 421
+print(part2())  # 986163

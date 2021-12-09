@@ -9,5 +9,5 @@ p1 = len(
 p2 = len(list(filter(lambda i: sum(
     numbers[i:i+3]) < sum(numbers[i+1:i+4]), range(0, len(numbers) - 3))))
 
-print(p1)
-print(p2)
+print(p1)  # 1527
+print(p2)  # 1575

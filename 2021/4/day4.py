@@ -48,5 +48,5 @@ def part2():
     return sum_board(win) * win_n
 
 
-print(part1())
-print(part2())
+print(part1())  # 49686
+print(part2())  # 26878

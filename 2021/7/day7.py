@@ -26,5 +26,5 @@ def part2():
     return int(min(fuel.values()))
 
 
-print(part1())
-print(part2())
+print(part1())  # 345035
+print(part2())  # 97038163

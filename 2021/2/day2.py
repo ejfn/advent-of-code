@@ -29,5 +29,5 @@ def part2():
     return pos * depth
 
 
-print(part1())
-print(part2())
+print(part1())  # 1484118
+print(part2())  # 1463827010

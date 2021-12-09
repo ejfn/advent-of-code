@@ -42,5 +42,5 @@ def part2():
     return int(t1[0], 2) * int(t2[0], 2)
 
 
-print(part1())
-print(part2())
+print(part1())  # 3912944
+print(part2())  # 4996233

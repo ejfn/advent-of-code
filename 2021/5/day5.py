@@ -37,5 +37,5 @@ def part2():
     return sum([1 if i >= 2 else 0 for i in itertools.chain(*matrix)])
 
 
-print(part1())
-print(part2())
+print(part1())  # 5197
+print(part2())  # 18605

@@ -1,45 +1,38 @@
 import os
 import sys
+import numpy as np
 
-with open(os.path.join(sys.path[0], 'input.txt'), 'r', encoding='utf-8') as f:
-    lines = f.readlines()
-half = len(lines) / 2
+with open(os.path.join(sys.path[0], 'input.txt'), 'r') as f:
+    arr = np.array([[int(i) for i in line.strip()] for line in f])
+
+rows, cols = arr.shape
+
+
+def arr_to_num(arr):
+    return int(''.join(arr.flatten().astype(str)), 2)
 
 
 def part1():
-    count = [0] * 12
-    for line in lines:
-        for i in range(12):
-            count[i] += 1 if line[i] == '1' else 0
-
-    x, y = '', ''
-    for c in count:
-        if c >= half:
-            x += '1'
-            y += '0'
-        else:
-            x += '0'
-            y += '1'
-    return int(x, 2) * int(y, 2)
+    a = np.array([1 if sum(arr[:, col]) > rows / 2 else 0
+                  for col in range(cols)])
+    b = np.ones(len(a), np.int0) - a
+    return arr_to_num(a) * arr_to_num(b)
 
 
 def part2():
-    t1 = lines
-    for i in range(12):
-        sp0 = [*filter(lambda s: s[i] == '0', t1)]
-        sp1 = [*filter(lambda s: s[i] == '1', t1)]
-        t1 = sp1 if len(sp0) <= len(sp1) else sp0
-        if len(t1) == 1:
-            break
-
-    t2 = lines
-    for i in range(12):
-        sp0 = [*filter(lambda s: s[i] == '0', t2)]
-        sp1 = [*filter(lambda s: s[i] == '1', t2)]
-        t2 = sp0 if len(sp0) <= len(sp1) else sp1
-        if len(t2) == 1:
-            break
-    return int(t1[0], 2) * int(t2[0], 2)
+    a, b = arr, arr
+    for col in range(cols):
+        if a.shape[0] > 1:
+            if sum(a[:, col]) >= a.shape[0] / 2:
+                a = a[a[:, col] == 1]
+            else:
+                a = a[a[:, col] == 0]
+        if b.shape[0] > 1:
+            if sum(b[:, col]) >= b.shape[0] / 2:
+                b = b[b[:, col] == 0]
+            else:
+                b = b[b[:, col] == 1]
+    return arr_to_num(a) * arr_to_num(b)
 
 
 print(part1())  # 3912944

@@ -3,50 +3,50 @@ import sys
 import numpy as np
 
 with open(os.path.join(sys.path[0], 'input.txt'), 'r') as f:
-    mat = np.array([[int(i) for i in line.strip()] for line in f])
+    arr = np.array([[int(i) for i in line.strip()] for line in f])
 
-rows, cols = mat.shape
+rows, cols = arr.shape
 
 
 def find_adjs(i, j):
     ajds = [
-        [i-1, j-1], [i-1, j], [i-1, j+1],
-        [i, j-1], [i, j+1],
-        [i+1, j-1], [i+1, j], [i+1, j+1]
+        (i-1, j-1), (i-1, j), (i-1, j+1),
+        (i, j-1), (i, j+1),
+        (i+1, j-1), (i+1, j), (i+1, j+1)
     ]
     return filter(lambda p: p[0] >= 0 and p[0] < rows and p[1] >= 0 and p[1] < cols, ajds)
 
 
-def flash(i, j, m):
-    for a, b in find_adjs(i, j):
-        if m[a, b] < 10:
-            m[a, b] += 1
-            if m[a, b] == 10:
-                flash(a, b, m)
+def flash(index, m):
+    for adj in find_adjs(*index):
+        if m[adj] < 10:
+            m[adj] += 1
+            if m[adj] == 10:
+                flash(adj, m)
 
 
 def part1():
-    m = mat.copy()
+    a = arr.copy()
     sum = 0
-    for i in range(100):
-        m += 1  # energy + 1
-        for i, j in zip(*np.where(m == 10)):
-            flash(i, j, m)
-        sum += m[m == 10].size
-        m[m == 10] = 0  # reset flashed
-    return int(sum)
+    for _ in range(100):
+        a += 1  # energy + 1
+        for fla in zip(*np.where(a == 10)):
+            flash(fla, a)
+        a[a == 10] = 0  # reset flashed
+        sum += a[a == 0].size
+    return sum
 
 
 def part2():
-    m = mat.copy()
+    a = arr.copy()
     step = 0
     while True:
-        m += 1  # energy + 1
-        for i, j in zip(*np.where(m == 10)):
-            flash(i, j, m)
-        m[m == 10] = 0  # reset flashed
+        a += 1  # energy + 1
+        for fla in zip(*np.where(a == 10)):
+            flash(fla, a)
+        a[a == 10] = 0  # reset flashed
         step += 1
-        if np.all(m == 0):
+        if np.all(a == 0):
             break
     return step
 

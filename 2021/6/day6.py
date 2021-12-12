@@ -1,6 +1,6 @@
-from collections import defaultdict
 import os
 import sys
+from collections import defaultdict
 
 with open(os.path.join(sys.path[0], 'input.txt'), 'r') as f:
     numbers = [int(i) for i in f.readline().split(',')]

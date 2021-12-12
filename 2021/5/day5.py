@@ -1,10 +1,13 @@
 import os
 import sys
-import itertools
+import numpy as np
 
 with open(os.path.join(sys.path[0], 'input.txt'), 'r') as f:
-    lines = [[[int(j) for j in i.split(',')]
-              for i in line.strip().split('->')] for line in f]
+    lines = np.array([[[int(j) for j in i.split(',')]
+                       for i in line.strip().split('->')] for line in f])
+
+rows = np.max(lines[:, :,  0]) + 1
+cols = np.max(lines[:, :,  1]) + 1
 
 
 def iter_points(p1, p2, inc45):
@@ -22,19 +25,19 @@ def iter_points(p1, p2, inc45):
 
 
 def part1():
-    matrix = [[0 for j in range(1000)] for i in range(1000)]
+    matrix = np.zeros([rows, cols], int)
     for p1, p2 in lines:
         for i, j in iter_points(p1, p2, False):
-            matrix[i][j] += 1
-    return sum([1 if i >= 2 else 0 for i in itertools.chain(*matrix)])
+            matrix[i, j] += 1
+    return matrix[matrix >= 2].size
 
 
 def part2():
-    matrix = [[0 for j in range(1000)] for i in range(1000)]
+    matrix = np.zeros([rows, cols], int)
     for p1, p2 in lines:
         for i, j in iter_points(p1, p2, True):
-            matrix[i][j] += 1
-    return sum([1 if i >= 2 else 0 for i in itertools.chain(*matrix)])
+            matrix[i, j] += 1
+    return matrix[matrix >= 2].size
 
 
 print(part1())  # 5197

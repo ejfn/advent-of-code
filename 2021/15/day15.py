@@ -14,14 +14,14 @@ def find_adjs(i, j, scale):
     return filter(lambda p: p[0] >= 0 and p[0] < rows * scale and p[1] >= 0 and p[1] < cols * scale, pts)
 
 
-def dijkstra(v: dict, u: dict, scale):
-    k = min(u, key=u.get)
-    v[k] = u[k]
-    del u[k]
+def dijkstra(solved: dict, unsolved: dict, scale):
+    k = min(unsolved, key=unsolved.get)
+    solved[k] = unsolved[k]
+    del unsolved[k]
     for adj in find_adjs(k[0], k[1], scale):
-        if adj in v:
+        if adj in solved:
             continue
-        u[adj] = min(v[k] + scaled_value(adj), u[adj])
+        unsolved[adj] = min(solved[k] + scaled_value(adj), unsolved[adj])
 
 
 def scaled_value(x):
@@ -31,12 +31,12 @@ def scaled_value(x):
 
 
 def solve(scale):
-    visited, unvisited = {}, defaultdict(lambda: 9999)
-    unvisited[(0, 0)] = 0
+    solved, unsolved = {}, defaultdict(lambda: 9999)
+    unsolved[(0, 0)] = 0
     target = (rows*scale-1, cols*scale-1)
-    while target not in visited:
-        dijkstra(visited, unvisited, scale)
-    return visited[target]
+    while target not in solved:
+        dijkstra(solved, unsolved, scale)
+    return solved[target]
 
 
 def part1(): return solve(1)

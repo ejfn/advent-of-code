@@ -7,10 +7,10 @@ from functools import reduce
 
 def createNode(x, depth=-1):
     if isinstance(x, list):
-        l = createNode(x[0], depth - 1)
-        r = createNode(x[1], depth - 1)
-        return Node(depth, l, r)
+        # depth as value
+        return Node(depth, createNode(x[0], depth - 1), createNode(x[1], depth - 1))
     else:
+        # value as value for leaves
         return Node(x)
 
 
@@ -23,41 +23,43 @@ with open(os.path.join(sys.path[0], 'input.txt'), 'r') as f:
 def add(x: Node, y: Node):
     for i in x.inorder + y.inorder:
         if i.value < 0:
-            i.value -= 1  # increase level
+            i.value -= 1  # decrease level
     root = Node(-1, x, y)
-    while reduceNode(root):
+    while reduceNode(root.inorder):
         continue
     return root
 
 
-def reduceNode(root: Node):
-    l = root.inorder
-    for i in range(len(l)):
-        n = l[i]
+def reduceNode(nodes: list[Node]):
+    for i in range(len(nodes)):
+        n = nodes[i]
         if n.value <= -5:
-            # explode
+            # search left
             for j in range(i - 2, -1, -1):
-                if l[j].value >= 0:
-                    l[j].value += n.left.value
+                if nodes[j].value >= 0:
+                    nodes[j].value += n.left.value
                     break
-            for j in range(i + 2, len(l), 1):
-                if l[j].value >= 0:
-                    l[j].value += n.right.value
+            # search right
+            for j in range(i + 2, len(nodes), 1):
+                if nodes[j].value >= 0:
+                    nodes[j].value += n.right.value
                     break
             n.value = 0
             n.left = n.right = None
+            nodes = nodes[:i - 2] + [n] + nodes[i + 2:]
             return True
-    l = root.inorder
-    for i in range(len(l)):
-        n = l[i]
+    for i in range(len(nodes)):
+        n = nodes[i]
         if n.value >= 10:
             # split
             n.left = Node(math.floor(n.value / 2))
             n.right = Node(math.ceil(n.value / 2))
-            if l[i-1].right == n:
-                n.value = l[i-1].value - 1
-            elif l[i+1].left == n:
-                n.value = l[i+1].value - 1
+            # depth = parent's depth - 1
+            if nodes[i-1].right == n:
+                n.value = nodes[i-1].value - 1
+            elif nodes[i+1].left == n:
+                n.value = nodes[i+1].value - 1
+            nodes = nodes[:i - 1] + [n.left, n, n.right] + nodes[i + 1:]
             return True
     return False
 

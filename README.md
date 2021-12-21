@@ -1,4 +1,6 @@
 # advent-of-code
 
 - Answers for https://adventofcode.com/
-- Requires `python@3.10^`
+- Requires:
+  - Python: `python@3.10^`
+  - Packages: `numpy`, `scipy`, `binarytree`

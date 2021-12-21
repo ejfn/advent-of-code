@@ -1,10 +1,9 @@
 from collections import defaultdict
+from scipy.spatial.transform import Rotation as R
 import os
 import sys
 import re
-import math
 import numpy as np
-import scipy.linalg as linalg
 
 scanners = {}
 with open(os.path.join(sys.path[0], 'input.txt'), 'r') as f:
@@ -21,29 +20,17 @@ with open(os.path.join(sys.path[0], 'input.txt'), 'r') as f:
 
 total_scanners = len(scanners)
 
-
-def rot_matrix(axis, angle):
-    rad = math.radians(angle)
-    return linalg.expm(np.cross(np.eye(3), axis / linalg.norm(axis) * rad))
-
-
-up_rots = [rot_matrix([0, 1, 0], 0), rot_matrix([0, 1, 0], 90),
-           rot_matrix([0, 1, 0], 180), rot_matrix([0, 1, 0], 270)]
-faces = [
-    rot_matrix([1, 0, 0], 0), rot_matrix([1, 0, 0], 180),  # up, down
-    rot_matrix([1, 0, 0], 90), rot_matrix([1, 0, 0], 270),  # front, back
-    rot_matrix([0, 0, 1], 90),  rot_matrix([0, 0, 1], 270)  # right, left
-]
-
-rotations = [[x, y] for x in up_rots for y in faces]
+euler_rots = {
+    'y': [0, 90, 180, 270],
+    'xy': [[x, y] for x in [90, 270] for y in [0, 90, 180, 270]],
+    'zy': [[z, y] for z in [90, 180, 270] for y in [0, 90, 180, 270]]
+}
+rotations = [R.from_euler(seq, angle, degrees=True).as_matrix()
+             for seq, angels in euler_rots.items() for angle in angels]
 
 
 def rotate(pt, rot):
-    p = pt
-    for m in rot:
-        p = m.dot(p)
-    p = tuple([round(i) for i in p])
-    return p
+    return tuple([round(i) for i in rot.dot(pt)])
 
 
 def overlap(l1, l2):
@@ -77,10 +64,7 @@ def find_overlap(index):
 
 def part1():
     find_overlap(0)
-    all = {}
-    for x in solved.values():
-        for i in x:
-            all[tuple(i)] = 1
+    all = set([tuple(i) for x in solved.values() for i in x])
     return len(all)
 
 

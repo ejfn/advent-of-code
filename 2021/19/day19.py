@@ -4,6 +4,7 @@ import os
 import sys
 import re
 import numpy as np
+import itertools as it
 
 scanners = {}
 with open(os.path.join(sys.path[0], 'input.txt'), 'r') as f:
@@ -35,10 +36,9 @@ def rotate(pt, rot):
 
 def overlap(l1, l2):
     offsets = defaultdict(lambda: 0)
-    for i in l1:
-        for j in l2:
-            o = tuple(np.array(j) - np.array(i))
-            offsets[o] += 1
+    for i, j in it.product(l1, l2):
+        o = tuple(np.array(j) - np.array(i))
+        offsets[o] += 1
     k = max(offsets, key=offsets.get)
     return k if offsets[k] >= 12 else None
 
@@ -65,18 +65,17 @@ def find_overlap(index):
 def part1():
     find_overlap(0)
     all = set([tuple(i) for x in solved.values() for i in x])
-    return len(all)
+    print(len(all))
 
 
 def part2():
     md = 0
-    for x in range(0, total_scanners - 1):
-        for y in range(x + 1, total_scanners):
-            c1, c2 = coords[x], coords[y]
-            d = abs(c1[0]-c2[0]) + abs(c1[1]-c2[1]) + abs(c1[2]-c2[2])
-            md = max(d, md)
-    return md
+    for x, y in it.combinations(range(total_scanners - 1), 2):
+        c1, c2 = coords[x], coords[y]
+        d = abs(c1[0]-c2[0]) + abs(c1[1]-c2[1]) + abs(c1[2]-c2[2])
+        md = max(d, md)
+    print(md)
 
 
-print(part1())  # 392
-print(part2())  # 13332
+part1()  # 392
+part2()  # 13332

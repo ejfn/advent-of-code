@@ -57,7 +57,15 @@ def decode(pos: int) -> tuple[int, int, int]:
     return (ver, val, math.ceil(pos))
 
 
-ver, val, _ = decode(0)
+def part1():
+    ver, val, _ = decode(0)
+    print(ver)
 
-print(ver)  # 974
-print(val)  # 180616437720
+
+def part2():
+    ver, val, _ = decode(0)
+    print(val)
+
+
+part1()  # 974
+part2()  # 180616437720

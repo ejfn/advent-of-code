@@ -1,3 +1,4 @@
+import itertools
 import math
 
 x1, x2 = 287, 309
@@ -5,7 +6,7 @@ y1, y2 = -76, -48
 
 
 def part1():
-    return y1 * (y1 + 1) // 2
+    print(y1 * (y1 + 1) // 2)
 
 
 def part2():
@@ -28,14 +29,13 @@ def part2():
                 y_hits.append((y, n))
             n += 1
     result = []
-    for (x, xn) in x_hits:
-        for (y, yn) in y_hits:
-            # equal, or greater than when x == 0 at target
-            if xn == yn or yn > xn == x:
-                result.append((x, y))
+    for (x, xn), (y, yn) in itertools.product(x_hits, y_hits):
+        # equal, or greater than when x == 0 at target
+        if xn == yn or yn > xn == x:
+            result.append((x, y))
     result = list(set(result))
-    return len(result)
+    print(len(result))
 
 
-print(part1())  # 2850
-print(part2())  # 1117
+part1()  # 2850
+part2()  # 1117

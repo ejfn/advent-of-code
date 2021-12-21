@@ -39,9 +39,9 @@ def solve(scale):
     return solved[target]
 
 
-def part1(): return solve(1)
-def part2(): return solve(5)
+def part1(): print(solve(1))
+def part2(): print(solve(5))
 
 
-print(part1())  # 720
-print(part2())  # 3025
+part1()  # 720
+part2()  # 3025

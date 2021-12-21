@@ -37,9 +37,9 @@ def after_steps(steps):
     return max(count.values()) - min(count.values())
 
 
-def part1(): return after_steps(10)
-def part2(): return after_steps(40)
+def part1(): print(after_steps(10))
+def part2(): print(after_steps(40))
 
 
-print(part1())  # 2408
-print(part2())  # 2651311098752
+part1()  # 2408
+part2()  # 2651311098752

@@ -3,6 +3,7 @@ import sys
 import math
 from binarytree import Node
 from functools import reduce
+import itertools
 
 
 def createNode(x, depth=-1):
@@ -76,19 +77,18 @@ def magnitude(node: Node):
 def part1():
     root = reduce(lambda x, y: add(x, y), [createNode(i) for i in lines])
     print(root)
-    return magnitude(root)
+    print(magnitude(root))
 
 
 def part2():
     l = len(lines)
     max_v = 0
-    for i in range(0, l - 1):
-        for j in range(i + 1, l):
-            m = magnitude(add(createNode(lines[i]), createNode(lines[j])))
-            n = magnitude(add(createNode(lines[j]), createNode(lines[i])))
-            max_v = max(max_v, m, n)
-    return max_v
+    for i, j in itertools.combinations(range(l), 2):
+        m = magnitude(add(createNode(lines[i]), createNode(lines[j])))
+        n = magnitude(add(createNode(lines[j]), createNode(lines[i])))
+        max_v = max(max_v, m, n)
+    print(max_v)
 
 
-print(part1())  # 4435
-print(part2())  # 4802
+part1()  # 4435
+part2()  # 4802

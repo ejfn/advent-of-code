@@ -2,6 +2,7 @@ from functools import reduce
 import os
 import sys
 import numpy as np
+import itertools as it
 
 with open(os.path.join(sys.path[0], 'input.txt'), 'r') as f:
     lines = f.readlines()
@@ -24,9 +25,8 @@ def resolve(i: int, j: int, arr: np.array):
 def apply(input: np.array):
     output = np.zeros(input.shape, dtype=int)
     m, n = output.shape
-    for x in range(1, m-1):
-        for y in range(1, n-1):
-            output[x, y] = resolve(x, y, input)
+    for x, y in it.product(range(1, m-1), range(1, n-1)):
+        output[x, y] = resolve(x, y, input)
     return output
 
 
@@ -37,15 +37,15 @@ def apply_twice(input: np.array):
 
 
 def part1():
-    return np.sum(apply_twice(input))
+    print(np.sum(apply_twice(input)))
 
 
 def part2():
     x = input
     for _ in range(25):
         x = apply_twice(x)
-    return np.sum(x)
+    print(np.sum(x))
 
 
-print(part1())  # 5275
-print(part2())  # 16482
+part1()  # 5275
+part2()  # 16482

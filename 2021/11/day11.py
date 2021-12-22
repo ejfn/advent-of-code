@@ -18,11 +18,10 @@ def find_adjs(i, j):
 
 
 def flash(index, m):
-    for adj in find_adjs(*index):
-        if m[adj] < 10:
-            m[adj] += 1
-            if m[adj] == 10:
-                flash(adj, m)
+    for adj in filter(lambda adj: m[adj] < 10, find_adjs(*index)):
+        m[adj] += 1
+        if m[adj] == 10:
+            flash(adj, m)
 
 
 def part1():
@@ -34,7 +33,7 @@ def part1():
             flash(fla, a)
         a[a == 10] = 0  # reset flashed
         sum += a[a == 0].size
-    return sum
+    print(sum)
 
 
 def part2():
@@ -48,8 +47,8 @@ def part2():
         step += 1
         if np.all(a == 0):
             break
-    return step
+    print(step)
 
 
-print(part1())  # 1640
-print(part2())  # 312
+part1()  # 1640
+part2()  # 312

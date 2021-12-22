@@ -1,3 +1,4 @@
+import itertools
 import os
 import sys
 import numpy as np
@@ -26,19 +27,17 @@ def iter_points(p1, p2, inc45):
 
 def part1():
     matrix = np.zeros([rows, cols], int)
-    for p1, p2 in lines:
-        for i, j in iter_points(p1, p2, False):
-            matrix[i, j] += 1
-    return matrix[matrix >= 2].size
+    for i, j in itertools.chain(*(iter_points(p1, p2, False) for p1, p2 in lines)):
+        matrix[i, j] += 1
+    print(matrix[matrix >= 2].size)
 
 
 def part2():
     matrix = np.zeros([rows, cols], int)
-    for p1, p2 in lines:
-        for i, j in iter_points(p1, p2, True):
-            matrix[i, j] += 1
-    return matrix[matrix >= 2].size
+    for i, j in itertools.chain(*(iter_points(p1, p2, True) for p1, p2 in lines)):
+        matrix[i, j] += 1
+    print(matrix[matrix >= 2].size)
 
 
-print(part1())  # 5197
-print(part2())  # 18605
+part1()  # 5197
+part2()  # 18605

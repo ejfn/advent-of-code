@@ -13,7 +13,7 @@ def part1():
             case 'forward': pos += y
             case 'down': depth += y
             case 'up': depth -= y
-    return pos * depth
+    print(pos * depth)
 
 
 def part2():
@@ -26,8 +26,8 @@ def part2():
                 depth += y * aim
             case 'down': aim += y
             case 'up': aim -= y
-    return pos * depth
+    print(pos * depth)
 
 
-print(part1())  # 1484118
-print(part2())  # 1463827010
+part1()  # 1484118
+part2()  # 1463827010

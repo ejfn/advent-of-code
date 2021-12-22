@@ -18,7 +18,7 @@ def part1():
     for index, n in np.ndenumerate(arr):
         if all(n < arr[p] for p in find_adjs(*index)):
             sum += arr[index] + 1
-    return sum
+    print(sum)
 
 
 def find_basin(index, basin):
@@ -41,8 +41,8 @@ def part2():
             find_basin(index, basin)
             count.append(len(basin))
             count = sorted(count, reverse=True)[:3]
-    return count[0] * count[1] * count[2]
+    print(count[0] * count[1] * count[2])
 
 
-print(part1())  # 514
-print(part2())  # 1103130
+part1()  # 514
+part2()  # 1103130

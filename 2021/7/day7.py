@@ -1,4 +1,5 @@
 from collections import defaultdict
+import itertools
 import os
 import sys
 
@@ -11,20 +12,18 @@ end = max(numbers)
 
 def part1():
     fuel = defaultdict(lambda: 0)
-    for n in range(start, end + 1):
-        for i in numbers:
-            fuel[n] += abs(n - i)
-    return min(fuel.values())
+    for i, j in itertools.product(range(start, end), numbers):
+        fuel[i] += abs(i - j)
+    print(min(fuel.values()))
 
 
 def part2():
     fuel = defaultdict(lambda: 0)
-    for n in range(start, end + 1):
-        for i in numbers:
-            d = abs(n-i)
-            fuel[n] += d * (1 + d) / 2
-    return int(min(fuel.values()))
+    for i, j in itertools.product(range(start, end), numbers):
+        d = abs(i-j)
+        fuel[i] += d * (1 + d) / 2
+    print(int(min(fuel.values())))
 
 
-print(part1())  # 345035
-print(part2())  # 97038163
+part1()  # 345035
+part2()  # 97038163

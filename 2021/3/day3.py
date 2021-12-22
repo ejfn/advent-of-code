@@ -16,7 +16,7 @@ def part1():
     a = np.array([1 if sum(arr[:, col]) > rows / 2 else 0
                   for col in range(cols)])
     b = np.ones(len(a), np.int0) - a
-    return arr_to_num(a) * arr_to_num(b)
+    print(arr_to_num(a) * arr_to_num(b))
 
 
 def part2():
@@ -32,8 +32,8 @@ def part2():
                 b = b[b[:, col] == 0]
             else:
                 b = b[b[:, col] == 1]
-    return arr_to_num(a) * arr_to_num(b)
+    print(arr_to_num(a) * arr_to_num(b))
 
 
-print(part1())  # 3912944
-print(part2())  # 4996233
+part1()  # 3912944
+part2()  # 4996233

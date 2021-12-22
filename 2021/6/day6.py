@@ -23,9 +23,9 @@ def after_days(days):
     return sum(counts.values())
 
 
-def part1(): return after_days(80)
-def part2(): return after_days(256)
+def part1(): print(after_days(80))
+def part2(): print(after_days(256))
 
 
-print(part1())  # 352195
-print(part2())  # 1600306001288
+part1()  # 352195
+part2()  # 1600306001288

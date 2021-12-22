@@ -31,7 +31,7 @@ def part1():
                     break
             else:
                 stack.append(c)
-    return sum
+    print(sum)
 
 
 score_map_2 = {
@@ -59,8 +59,8 @@ def part2():
                 p = stack.pop()
                 sum = sum * 5 + score_map_2[p]
             scores.append(sum)
-    return sorted(scores)[math.floor(len(scores) / 2)]
+    print(sorted(scores)[math.floor(len(scores) / 2)])
 
 
-print(part1())  # 339537
-print(part2())  # 2412013412
+part1()  # 339537
+part2()  # 2412013412

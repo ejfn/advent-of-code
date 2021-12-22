@@ -33,15 +33,16 @@ def fold(arr, fold_line):
 
 def part1():
     a = fold(arr, folds[0])
-    return a[a == 1].size
+    print(a[a == 1].size)
 
 
 def part2():
     a = arr
     for f in folds:
         a = fold(a, f)
-    return np.array2string(a, separator='', formatter={'int': lambda x: '#' if x == 1 else ' '})
+    print(np.array2string(a, separator='', formatter={
+          'int': lambda x: '#' if x == 1 else ' '}))
 
 
-print(part1())  # 655
-print(part2())  # JPZCUAUR
+part1()  # 655
+part2()  # JPZCUAUR

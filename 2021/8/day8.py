@@ -1,4 +1,5 @@
 from collections import defaultdict
+import itertools
 import os
 import sys
 
@@ -9,13 +10,8 @@ with open(os.path.join(sys.path[0], 'input.txt'), 'r') as f:
 
 
 def part1():
-    t = [2, 4, 3, 7]
-    sum = 0
-    for e in entries:
-        for s in e[1]:
-            if len(s) in t:
-                sum += 1
-    return sum
+    print(sum(1 for s in itertools.chain(*map(lambda x: x[1], entries))
+              if len(s) in [2, 4, 3, 7]))
 
 
 def determine(input, base):
@@ -49,8 +45,8 @@ def part2():
         for i in range(4):
             input = e[1][i]
             sum += 10 ** (3-i) * determine(input, base)
-    return sum
+    print(sum)
 
 
-print(part1())  # 421
-print(part2())  # 986163
+part1()  # 421
+part2()  # 986163

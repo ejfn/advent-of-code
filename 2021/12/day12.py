@@ -36,9 +36,9 @@ def traverse(cave, visited, is_part1):
     return sum
 
 
-def part1(): return traverse('start', defaultdict(lambda: 0), True)
-def part2(): return traverse('start', defaultdict(lambda: 0), False)
+def part1(): print(traverse('start', defaultdict(lambda: 0), True))
+def part2(): print(traverse('start', defaultdict(lambda: 0), False))
 
 
-print(part1())  # 4691
-print(part2())  # 140718
+part1()  # 4691
+part2()  # 140718

@@ -1,3 +1,4 @@
+import itertools
 import os
 import sys
 import numpy as np
@@ -7,8 +8,7 @@ with open(os.path.join(sys.path[0], 'input.txt'), 'r') as f:
 
 draw_numbers = np.fromstring(lines[0], dtype=int, sep=',')
 boards = np.array([np.fromstring(j, dtype=int, sep=' ')
-                   for j in filter(lambda i: i != '', lines[1:])]
-                  ).reshape([-1, 5, 5])
+                  for j in filter(lambda i: i != '', lines[1:])]).reshape([-1, 5, 5])
 
 
 def is_complete(board: np.array):
@@ -19,11 +19,11 @@ def is_complete(board: np.array):
 
 
 def part1():
-    for n in draw_numbers:
-        for board in boards:
-            board[board == n] = -1
-            if is_complete(board):
-                return board[board != -1].sum() * n
+    for n, b in itertools.product(draw_numbers, boards):
+        b[b == n] = -1
+        if is_complete(b):
+            print(b[b != -1].sum() * n)
+            return
 
 
 def part2():
@@ -35,8 +35,8 @@ def part2():
                 win = board
                 win_n = n
         tmp = list(filter(lambda b: not is_complete(b), tmp))
-    return win[win != -1].sum() * win_n
+    print(win[win != -1].sum() * win_n)
 
 
-print(part1())  # 49686
-print(part2())  # 26878
+part1()  # 49686
+part2()  # 26878

@@ -1,4 +1,5 @@
 from collections import defaultdict
+import itertools
 import os
 import sys
 
@@ -16,22 +17,21 @@ with open(os.path.join(sys.path[0], 'input.txt'), 'r') as f:
 
 def next_polymer(curr, count):
     next = defaultdict(lambda: 0)
-    for k, v in curr.items():
-        if k in rules:
-            m = rules[k]
-            count[m] += v
-            next[k[0] + m] += v
-            next[m + k[1]] += v
+    for k in filter(lambda x: x in rules, curr):
+        v, m = curr[k], rules[k]
+        count[m] += v
+        next[k[0] + m] += v
+        next[m + k[1]] += v
     return next
 
 
 def after_steps(steps):
     count = defaultdict(lambda: 0)
     next = defaultdict(lambda: 0)
-    for i, s in enumerate(start):
-        count[s] += 1
-        if i < len(start) - 1:
-            next[start[i:i+2]] += 1
+    count[start[-1]] = 1
+    for i, j in itertools.pairwise(start):
+        count[i] += 1
+        next[i + j] += 1
     for _ in range(steps):
         next = next_polymer(next, count)
     return max(count.values()) - min(count.values())

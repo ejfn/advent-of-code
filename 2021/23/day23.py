@@ -6,7 +6,7 @@ from heapq import heappop, heappush
 
 hallway = [0, 1, 3, 5, 7, 9, 10]
 rooms = {2: 'A', 4: 'B', 6: 'C', 8: 'D'}
-costs = {'A': 1, 'B': 10, 'C': 100, 'D': 1000}
+move_cost = {'A': 1, 'B': 10, 'C': 100, 'D': 1000}
 room_capacity = 2
 
 
@@ -87,12 +87,12 @@ class State:
             steps += room_capacity - len(self.state[start]) + 1
         if end in rooms:
             steps += room_capacity - len(self.state[end])
-        return steps * costs[amph]
+        return steps * move_cost[amph]
 
 
 def dijkstra(start: State, end: State):
-    solved, unsolved, hpq = set(), dict(), []
-    unsolved[start] = 0
+    solved, costs, hpq = set(), dict(), []
+    costs[start] = 0
     heappush(hpq, (0, start))
     while hpq:
         cost, k = heappop(hpq)
@@ -106,11 +106,11 @@ def dijkstra(start: State, end: State):
             if adj in solved:
                 continue
             acc_cost = cost + c
-            if adj not in unsolved or acc_cost < unsolved[adj]:
+            if adj not in costs or acc_cost < costs[adj]:
                 adj.parent = k
-                unsolved[adj] = acc_cost
+                costs[adj] = acc_cost
                 heappush(hpq, (acc_cost, adj))
-    return float('inf'), None
+    return float('inf')
 
 
 def print_path(target: State, rewrite_lines, wait):

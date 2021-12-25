@@ -1,4 +1,5 @@
 import itertools
+import time
 from collections import defaultdict
 from heapq import heappop, heappush
 
@@ -11,6 +12,7 @@ room_capacity = 2
 
 class State:
     def __init__(self, init) -> None:
+        self.parent = None
         self.state = defaultdict(lambda: [])
         for i in init:
             self.state[i] = init[i].copy()
@@ -89,25 +91,37 @@ class State:
 
 
 def dijkstra(start: State, end: State):
-    solved, unsolved, hpq = dict(), dict(), []
+    solved, unsolved, hpq = set(), dict(), []
     unsolved[start] = 0
     heappush(hpq, (0, start))
     while hpq:
         cost, k = heappop(hpq)
         if k in solved:
             continue
-        solved[k] = unsolved[k]
-        del unsolved[k]
+        solved.add(k)
         if k == end:
+            end.parent = k.parent
             return cost
-        for adj, cost in k.find_next_moves():
+        for adj, c in k.find_next_moves():
             if adj in solved:
                 continue
-            acc_cost = solved[k] + cost
+            acc_cost = cost + c
             if adj not in unsolved or acc_cost < unsolved[adj]:
+                adj.parent = k
                 unsolved[adj] = acc_cost
                 heappush(hpq, (acc_cost, adj))
-    return float('inf')
+    return float('inf'), None
+
+
+def print_path(target: State, rewrite_lines, wait):
+    path = [target]
+    while path[0].parent is not None:
+        path.insert(0, path[0].parent)
+    print('\n' * rewrite_lines, end='')
+    for p in path:
+        print('\033[F' * (rewrite_lines + 1))
+        p.print()
+        time.sleep(wait)
 
 
 def part1():
@@ -124,6 +138,7 @@ def part1():
         8: ['D', 'D']
     })
     print(dijkstra(initial, target))
+    print_path(target, 5, 0.5)
 
 
 def part2():
@@ -142,6 +157,7 @@ def part2():
         8: ['D', 'D', 'D', 'D']
     })
     print(dijkstra(initial, target))
+    print_path(target, 7, 0.5)
 
 
 part1()  # 16244

@@ -12,7 +12,7 @@ room_capacity = 2
 
 class State:
     def __init__(self, init) -> None:
-        self.parent = None
+        self.previous = None
         self.state = defaultdict(lambda: [])
         for i in init:
             self.state[i] = init[i].copy()
@@ -33,25 +33,17 @@ class State:
             return self.__key__() < other.__key__()
         return NotImplemented
 
-    def print_hallway(self):
+    def __repr__(self) -> str:
+        repr = '#############\n'
         h = ''.join('.' if i in rooms else self.state[i][-1]
                     if len(self.state[i]) > 0 else '.' for i in range(11))
-        print('#' + h + '#')
-
-    def print_room(self, i):
-        r = '#'.join(self.state[r][i] if len(
-            self.state[r]) > i else '.' for r in rooms)
-        if i == room_capacity - 1:
-            print('###' + r + '###')
-        else:
-            print('  #' + r + '#  ')
-
-    def print(self):
-        print('#############')
-        self.print_hallway()
-        for i in range(room_capacity, 0, -1):
-            self.print_room(i - 1)
-        print('  #########  ')
+        repr += '#' + h + '#\n'
+        for i in range(room_capacity-1, -1, -1):
+            r = '#'.join(self.state[r][i]
+                         if len(self.state[r]) > i else '.' for r in rooms)
+            repr += '###' + r + '###\n' if i == room_capacity - 1 else '  #' + r + '#  \n'
+        repr += '  #########  '
+        return repr
 
     def is_available(self, a: str, pos: int):
         if pos in rooms:
@@ -71,7 +63,11 @@ class State:
 
     def find_next_moves(self):
         for s, e in itertools.product(range(11), repeat=2):
+            # ignore empty, self-self or hallway to hallway
             if len(self.state[s]) == 0 or s == e or (s in hallway and e in hallway):
+                continue
+            # ignore any settled room
+            if s in rooms and all([x == rooms[s] for x in self.state[s]]):
                 continue
             items = self.state[s]
             a = items[-1]
@@ -100,28 +96,29 @@ def dijkstra(start: State, end: State):
             continue
         solved.add(k)
         if k == end:
-            end.parent = k.parent
+            end.previous = k.previous
             return cost
         for adj, c in k.find_next_moves():
             if adj in solved:
                 continue
             acc_cost = cost + c
             if adj not in costs or acc_cost < costs[adj]:
-                adj.parent = k
+                adj.previous = k
                 costs[adj] = acc_cost
                 heappush(hpq, (acc_cost, adj))
     return float('inf')
 
 
-def print_path(target: State, rewrite_lines, wait):
+def print_path(target: State):
+    rewrite_lines = 5 if room_capacity == 2 else 7
     path = [target]
-    while path[0].parent is not None:
-        path.insert(0, path[0].parent)
+    while path[0].previous is not None:
+        path.insert(0, path[0].previous)
     print('\n' * rewrite_lines, end='')
     for p in path:
         print('\033[F' * (rewrite_lines + 1))
-        p.print()
-        time.sleep(wait)
+        print(p)
+        time.sleep(0.5)
 
 
 def part1():
@@ -138,7 +135,7 @@ def part1():
         8: ['D', 'D']
     })
     print(dijkstra(initial, target))
-    print_path(target, 5, 0.5)
+    print_path(target)
 
 
 def part2():
@@ -157,7 +154,7 @@ def part2():
         8: ['D', 'D', 'D', 'D']
     })
     print(dijkstra(initial, target))
-    print_path(target, 7, 0.5)
+    print_path(target)
 
 
 part1()  # 16244

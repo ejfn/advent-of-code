@@ -5,7 +5,7 @@ import re
 passwords = []
 with open(os.path.join(sys.path[0], 'input.txt'), 'r') as f:
     for line in f:
-        m = re.match('(\d+)-(\d+)\s([a-z]):\s([a-z]+)', line)
+        m = re.match('(\\d+)-(\\d+)\\s([a-z]):\\s([a-z]+)', line)
         passwords.append((int(m.group(1)), int(
             m.group(2)), m.group(3), m.group(4)))
 

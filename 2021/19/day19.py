@@ -12,7 +12,7 @@ with open(os.path.join(sys.path[0], 'input.txt'), 'r') as f:
         line = line.strip()
         if line != '':
             m = re.match(r'\-{3} scanner (\d+) \-{3}', line)
-            if m != None:
+            if m is not None:
                 id = int(m.group(1))
                 scanners[id] = []
             else:
@@ -55,7 +55,7 @@ def find_overlap(index):
         for rj in rotations:
             lst2 = [rotate(x, rj) for x in scanners[j]]
             offset = overlap(lst2, lst1)
-            if offset != None:
+            if offset is not None:
                 coords[j] = offset
                 solved[j] = np.array(lst2) + offset
                 find_overlap(j)

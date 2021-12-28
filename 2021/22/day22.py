@@ -6,7 +6,7 @@ import itertools
 
 def parse_line(line):
     m = re.match(
-        r'(on|off) x=([-0-9]+)..([-0-9]+),y=([-0-9]+)..([-0-9]+),z=([-0-9]+)..([-0-9]+)', line)
+        r'(on|off) x=([-0-9]+)..([-0-9]+),y=([-0-9]+)..([-0-9]+),z=([-0-9]+)..([-0-9]+)', line)  # noqa
     return (m.group(1), [int(i) for i in m.group(2, 3, 4, 5, 6, 7)])
 
 

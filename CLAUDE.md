@@ -41,3 +41,13 @@ The repository focuses on complete 2021 puzzles, partial 2020, and emerging 2025
 - Test Part Two with small example inputs first to catch long-running loops or dead loops (e.g., infinite recursion in graph traversals).
 - Use efficient libraries: `numpy` for array operations, `collections.deque` for queues, and sets for O(1) lookups to prevent timeouts.
 - If a solution hangs, profile with `cProfile` or add print statements to identify bottlenecks, then optimize (e.g., memoization for recursive functions).
+
+## Parsing and Input Handling Tips (Day 6 Lessons)
+
+- **Read problem statements extremely carefully** - Don't make assumptions about input format. Re-read multiple times if parsing seems wrong.
+- **Always validate with example data first** - Create a small test file with the provided example before running on the full input. This catches parsing errors early.
+- **Watch for error message hints** - Errors like "number too large" or "exceeds digit limit" often indicate incorrect parsing, not a mathematical issue.
+- **Character-level vs token-level parsing** - Some problems require character-by-character column analysis rather than whitespace tokenization. Use completely blank vertical columns to detect boundaries.
+- **Part 2 can fundamentally change interpretation** - The same input may need to be read in a completely different direction (e.g., right-to-left vs left-to-right, rows vs columns). Keep Part 1 parser separate from Part 2.
+- **Debug incrementally** - Print parsed structures (numbers, operations) on small examples to verify correctness before computing results.
+- **Space patterns matter** - In formatted text input, the number and pattern of spaces (single space vs multiple spaces) can encode structure. Analyze spacing carefully.

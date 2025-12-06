@@ -1,53 +1,63 @@
 # CLAUDE.md
 
-This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+Guidance for Claude Code when working with Advent of Code solutions in this repository.
 
-## Common Commands
+## Repository Structure
 
-### Setup
-Install dependencies:
 ```
-pip install numpy scipy binarytree
+YYYY/
+└── N/
+    ├── dayN.py    # Solution with part1() and part2() functions
+    └── input.txt  # Puzzle input
 ```
-Use Python 3.10 or later (3.13 recommended).
 
-### Running Solutions
-Navigate to the year and day directory, then execute the solution:
-```
-cd 2021/1
-python day1.py
-```
-This runs both parts and prints answers.
+**Code Pattern:**
+- Load input: `os.path.join(sys.path[0], 'input.txt')`
+- Implement: `part1()` and `part2()` functions
+- Output: Print results directly from `if __name__ == "__main__"`
+- Libraries: Any Python package can be installed and used as needed
+  - Common: `os`, `sys`, `itertools`, `numpy`, `scipy`, `networkx`, `sympy`
+  - Install with: `pip install <package>`
+- No shared utilities between days
 
-### Linting and Formatting
-- Format with autopep8: `autopep8 --in-place dayN.py`
-- Lint with pycodestyle: `pycodestyle dayN.py`
+**Running:** `cd YYYY/N && python dayN.py`
 
-No build process or automated tests exist.
+## Problem-Solving Workflow
 
-## Architecture
+1. **Read problem carefully** - Don't assume input format
+2. **Create example test file** - Validate parsing before running on full input
+3. **Test Part 1 thoroughly** - Part 2 often changes interpretation completely
+4. **Watch error messages** - "Number too large" usually means parsing error, not math issue
+5. **Update CLAUDE.md** - Add lessons learned after each day
 
-Solutions are organized by year (e.g., 2020, 2021) with subdirectories for each day (1-25). Each day directory contains:
-- `dayN.py`: Self-contained Python script implementing solutions for both puzzle parts.
-- `input.txt`: Puzzle input data.
+## Parsing and Input Handling
 
-Scripts load input using `os.path.join(sys.path[0], 'input.txt')` from the script's directory, compute answers in `part1()` and `part2()` functions, and print results directly. Common libraries include `os`, `sys`, `itertools`, and `numpy` for array operations.
+**Key Principles:**
+- Character-level vs token-level: Know when to analyze char-by-char vs split on whitespace
+- Space patterns encode structure: Single space vs multiple spaces often matters
+- Vertical column analysis: Use completely blank columns to detect boundaries
+- Part 2 can reverse direction: Left-to-right ↔ right-to-left, rows ↔ columns
 
-The repository focuses on complete 2021 puzzles, partial 2020, and emerging 2025 solutions. Code follows a consistent pattern without shared utilities or modules across days.
+**Debugging:**
+- Print parsed structures on small examples first
+- Verify numbers and operations before computing results
+- Re-read problem statement multiple times if parsing seems wrong
 
-## Performance Tips for AoC Puzzles
+## Performance Guidelines
 
-- Advent of Code often involves combinatorial problems; for selecting k elements from n (e.g., largest subsequence), avoid brute-force `itertools.combinations` if n > 15 as it leads to exponential time (C(n,k) ~ 10^6+ for n=20,k=12). Prefer O(n) greedy stack algorithms (monotonic stack to remove smallest digits while preserving order) or DP.
-- Test Part Two with small example inputs first to catch long-running loops or dead loops (e.g., infinite recursion in graph traversals).
-- Use efficient libraries: `numpy` for array operations, `collections.deque` for queues, and sets for O(1) lookups to prevent timeouts.
-- If a solution hangs, profile with `cProfile` or add print statements to identify bottlenecks, then optimize (e.g., memoization for recursive functions).
+**Combinatorial Problems:**
+- Avoid `itertools.combinations` if n > 15 (exponential time)
+- Prefer: Greedy stack algorithms (monotonic stack) or DP
+- Example: C(20,12) ≈ 10^6+
 
-## Parsing and Input Handling Tips (Day 6 Lessons)
+**Common Optimizations:**
+- Arrays: `numpy`
+- Queues: `collections.deque`
+- Lookups: `set()` for O(1)
+- Recursion: Add memoization if slow
+- Loops: Test Part 2 with examples first to catch infinite loops
 
-- **Read problem statements extremely carefully** - Don't make assumptions about input format. Re-read multiple times if parsing seems wrong.
-- **Always validate with example data first** - Create a small test file with the provided example before running on the full input. This catches parsing errors early.
-- **Watch for error message hints** - Errors like "number too large" or "exceeds digit limit" often indicate incorrect parsing, not a mathematical issue.
-- **Character-level vs token-level parsing** - Some problems require character-by-character column analysis rather than whitespace tokenization. Use completely blank vertical columns to detect boundaries.
-- **Part 2 can fundamentally change interpretation** - The same input may need to be read in a completely different direction (e.g., right-to-left vs left-to-right, rows vs columns). Keep Part 1 parser separate from Part 2.
-- **Debug incrementally** - Print parsed structures (numbers, operations) on small examples to verify correctness before computing results.
-- **Space patterns matter** - In formatted text input, the number and pattern of spaces (single space vs multiple spaces) can encode structure. Analyze spacing carefully.
+**Profiling:**
+- Use `cProfile` for bottlenecks
+- Add print statements to track progress
+- Watch for dead loops in graph traversals

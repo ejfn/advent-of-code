@@ -3,7 +3,6 @@ name: AoC Solver
 on:
   schedule:
     # Run at 12:01 AM EST daily in December (5:01 AM UTC)
-    # Each day solves that specific day only
     - cron: '1 5 * 12 *'
 
   workflow_dispatch:
@@ -13,27 +12,20 @@ on:
         required: true
         type: number
       year:
-        description: 'Year (for testing with past years)'
+        description: 'Year'
         required: true
         type: number
         default: 2025
-      dry_run:
-        description: 'Dry run mode (skip submission)'
-        required: false
-        type: boolean
-        default: false
 
-# Each workflow run is for a specific day
 run-name: 'AoC ${{ inputs.year || ''2025'' }} Day ${{ inputs.day || github.run_number }}'
 
 permissions:
   contents: write
-  pull-requests: write
 
 jobs:
   solve:
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 60
 
     steps:
       - name: Checkout repository
@@ -45,14 +37,11 @@ jobs:
           python-version: '3.13'
 
       - name: Install dependencies
-        run: |
-          pip install -r requirements.txt
+        run: pip install -r requirements.txt
 
       - name: Determine day and year
         id: set_day
         run: |
-          # For manual trigger: use inputs
-          # For cron trigger: use current date
           if [ -n "${{ inputs.day }}" ]; then
             DAY="${{ inputs.day }}"
             YEAR="${{ inputs.year }}"
@@ -60,357 +49,54 @@ jobs:
             DAY=$(date +%-d)
             YEAR=$(date +%Y)
           fi
-
           echo "day=$DAY" >> $GITHUB_OUTPUT
           echo "year=$YEAR" >> $GITHUB_OUTPUT
           echo "🎄 Solving AoC $YEAR Day $DAY"
 
-      - name: Fetch puzzle and setup (Part 1)
-        id: setup
+      - name: Fetch puzzle and setup
         env:
           AOC_SESSION: ${{ secrets.AOC_SESSION_COOKIE }}
           FORCE_DAY: ${{ steps.set_day.outputs.day }}
           FORCE_YEAR: ${{ steps.set_day.outputs.year }}
-          DRY_RUN: ${{ inputs.dry_run }}
-        run: |
-          python aoc-automation/solve_daily.py
+        run: python aoc-automation/solve_daily.py
 
-      - name: Solve Part 1 with Claude
+      - name: Solve with Claude
         uses: anthropics/claude-code-action@v1
         with:
           anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
           github_token: ${{ secrets.GITHUB_TOKEN }}
           prompt: |
-            Solve Advent of Code ${{ steps.set_day.outputs.year }} Day ${{ steps.set_day.outputs.day }} Part 1.
+            Solve Advent of Code ${{ steps.set_day.outputs.year }} Day ${{ steps.set_day.outputs.day }}.
 
-            The puzzle description is in ${{ steps.set_day.outputs.year }}/${{ steps.set_day.outputs.day }}/puzzle.md
-            Your input data is in ${{ steps.set_day.outputs.year }}/${{ steps.set_day.outputs.day }}/input.txt
+            **Files:**
+            - Puzzle description: `${{ steps.set_day.outputs.year }}/${{ steps.set_day.outputs.day }}/puzzle.md`
+            - Your input data: `${{ steps.set_day.outputs.year }}/${{ steps.set_day.outputs.day }}/input.txt`
+            - Solution file: `${{ steps.set_day.outputs.year }}/${{ steps.set_day.outputs.day }}/day${{ steps.set_day.outputs.day }}.py`
 
-            Create the solution at ${{ steps.set_day.outputs.year }}/${{ steps.set_day.outputs.day }}/day${{ steps.set_day.outputs.day }}.py
+            **Workflow:**
+            1. Read `CLAUDE.md` for coding guidelines
+            2. Read the puzzle description to understand Part 1
+            3. Implement part1() function in the solution file
+            4. Test your solution locally first
+            5. Submit your answer:
+               ```bash
+               export AOC_SESSION=${{ secrets.AOC_SESSION_COOKIE }}
+               export YEAR=${{ steps.set_day.outputs.year }}
+               export DAY=${{ steps.set_day.outputs.day }}
+               python aoc-automation/submit_answer.py 1 <your_answer> $DAY $YEAR
+               ```
+            6. The script will output the response from AoC - READ IT to see if correct
+            7. If wrong, analyze the feedback and retry (you can submit multiple times)
+            8. Once Part 1 is CORRECT: **commit the solution to main branch**
+            9. Re-fetch the puzzle to get Part 2: `python aoc-automation/solve_daily.py`
+            10. Implement part2() function
+            11. Submit Part 2 the same way
+            12. Once Part 2 is CORRECT: **commit again**
 
-            Requirements:
-            - Read the puzzle description carefully
-            - Implement part1() function that prints the answer
-            - Follow coding guidelines in CLAUDE.md
-            - Test your solution before finishing
-            - Add a stub part2() function for now
-          claude_args: "--allowedTools Read,Write,Edit,Bash,Glob,Grep --max-turns 15"
-
-      - name: Run solution
-        id: run_solution
-        run: |
-          YEAR="${{ steps.set_day.outputs.year }}"
-          DAY="${{ steps.set_day.outputs.day }}"
-
-          SOLUTION_FILE="${YEAR}/${DAY}/day${DAY}.py"
-
-          if [ ! -f "$SOLUTION_FILE" ]; then
-            echo "❌ Solution file not found: $SOLUTION_FILE"
-            exit 1
-          fi
-
-          echo "🏃 Running solution: $SOLUTION_FILE"
-          cd "${YEAR}/${DAY}"
-          python "day${DAY}.py" > output.txt 2>&1 || true
-          cat output.txt
-
-          # Extract answers (first two lines of output)
-          ANSWER1=$(sed -n '1p' output.txt)
-          ANSWER2=$(sed -n '2p' output.txt)
-
-          echo "answer1=$ANSWER1" >> $GITHUB_OUTPUT
-          echo "answer2=$ANSWER2" >> $GITHUB_OUTPUT
-
-      - name: Submit Part 1 (Attempt 1)
-        id: submit_part1_attempt1
-        if: steps.run_solution.outputs.answer1 != ''
-        env:
-          AOC_SESSION: ${{ secrets.AOC_SESSION_COOKIE }}
-          DRY_RUN: ${{ inputs.dry_run }}
-          YEAR: ${{ steps.set_day.outputs.year }}
-          DAY: ${{ steps.set_day.outputs.day }}
-        run: |
-          python aoc-automation/submit_answer.py 1 "${{ steps.run_solution.outputs.answer1 }}" "$DAY" "$YEAR"
-
-      - name: Retry Part 1 (Attempt 2)
-        if: steps.submit_part1_attempt1.outputs.status == 'wrong'
-        uses: anthropics/claude-code-action@v1
-        with:
-          anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          prompt: |
-            Your previous answer for Part 1 was WRONG.
-
-            Submitted answer: ${{ steps.run_solution.outputs.answer1 }}
-            Feedback: ${{ steps.submit_part1_attempt1.outputs.feedback || 'wrong answer' }}
-
-            Please review your solution in ${{ steps.set_day.outputs.year }}/${{ steps.set_day.outputs.day }}/day${{ steps.set_day.outputs.day }}.py
-            - Check your logic carefully
-            - Look for off-by-one errors, edge cases, or parsing issues
-            - Test with examples from puzzle.md if available
-            - Fix the part1() function and test again
-          claude_args: "--allowedTools Read,Write,Edit,Bash,Glob,Grep --max-turns 10"
-
-      - name: Run Part 1 (Attempt 2)
-        if: steps.submit_part1_attempt1.outputs.status == 'wrong'
-        id: run_solution_attempt2
-        run: |
-          YEAR="${{ steps.set_day.outputs.year }}"
-          DAY="${{ steps.set_day.outputs.day }}"
-          cd "${YEAR}/${DAY}"
-          python "day${DAY}.py" > output.txt 2>&1 || true
-          cat output.txt
-          ANSWER1=$(sed -n '1p' output.txt)
-          echo "answer1=$ANSWER1" >> $GITHUB_OUTPUT
-
-      - name: Submit Part 1 (Attempt 2)
-        id: submit_part1_attempt2
-        if: steps.submit_part1_attempt1.outputs.status == 'wrong' && steps.run_solution_attempt2.outputs.answer1 != ''
-        env:
-          AOC_SESSION: ${{ secrets.AOC_SESSION_COOKIE }}
-          DRY_RUN: ${{ inputs.dry_run }}
-          YEAR: ${{ steps.set_day.outputs.year }}
-          DAY: ${{ steps.set_day.outputs.day }}
-        run: |
-          python aoc-automation/submit_answer.py 1 "${{ steps.run_solution_attempt2.outputs.answer1 }}" "$DAY" "$YEAR"
-
-      - name: Retry Part 1 (Attempt 3)
-        if: steps.submit_part1_attempt2.outputs.status == 'wrong'
-        uses: anthropics/claude-code-action@v1
-        with:
-          anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          prompt: |
-            Your answer was WRONG again (attempt 2/3).
-
-            Previous answers:
-            - Attempt 1: ${{ steps.run_solution.outputs.answer1 }} (${{ steps.submit_part1_attempt1.outputs.feedback || 'wrong' }})
-            - Attempt 2: ${{ steps.run_solution_attempt2.outputs.answer1 }} (${{ steps.submit_part1_attempt2.outputs.feedback || 'wrong' }})
-
-            This is your last chance. Please:
-            - Re-read the puzzle description very carefully
-            - Check if you're solving the right problem
-            - Test with ALL examples from puzzle.md
-            - Consider completely different approaches if needed
-            - Fix part1() in ${{ steps.set_day.outputs.year }}/${{ steps.set_day.outputs.day }}/day${{ steps.set_day.outputs.day }}.py
-          claude_args: "--allowedTools Read,Write,Edit,Bash,Glob,Grep --max-turns 10"
-
-      - name: Run Part 1 (Attempt 3)
-        if: steps.submit_part1_attempt2.outputs.status == 'wrong'
-        id: run_solution_attempt3
-        run: |
-          YEAR="${{ steps.set_day.outputs.year }}"
-          DAY="${{ steps.set_day.outputs.day }}"
-          cd "${YEAR}/${DAY}"
-          python "day${DAY}.py" > output.txt 2>&1 || true
-          cat output.txt
-          ANSWER1=$(sed -n '1p' output.txt)
-          echo "answer1=$ANSWER1" >> $GITHUB_OUTPUT
-
-      - name: Submit Part 1 (Attempt 3)
-        id: submit_part1_attempt3
-        if: steps.submit_part1_attempt2.outputs.status == 'wrong' && steps.run_solution_attempt3.outputs.answer1 != ''
-        env:
-          AOC_SESSION: ${{ secrets.AOC_SESSION_COOKIE }}
-          DRY_RUN: ${{ inputs.dry_run }}
-          YEAR: ${{ steps.set_day.outputs.year }}
-          DAY: ${{ steps.set_day.outputs.day }}
-        run: |
-          python aoc-automation/submit_answer.py 1 "${{ steps.run_solution_attempt3.outputs.answer1 }}" "$DAY" "$YEAR"
-
-      - name: Check Part 1 Final Status
-        id: check_part1
-        run: |
-          # Determine final status from all attempts
-          if [ "${{ steps.submit_part1_attempt1.outputs.status }}" == "correct" ] || [ "${{ steps.submit_part1_attempt1.outputs.status }}" == "already_solved" ]; then
-            echo "status=correct" >> $GITHUB_OUTPUT
-            echo "✅ Part 1 complete (attempt 1)!"
-            exit 0
-          elif [ "${{ steps.submit_part1_attempt2.outputs.status }}" == "correct" ] || [ "${{ steps.submit_part1_attempt2.outputs.status }}" == "already_solved" ]; then
-            echo "status=correct" >> $GITHUB_OUTPUT
-            echo "✅ Part 1 complete (attempt 2)!"
-            exit 0
-          elif [ "${{ steps.submit_part1_attempt3.outputs.status }}" == "correct" ] || [ "${{ steps.submit_part1_attempt3.outputs.status }}" == "already_solved" ]; then
-            echo "status=correct" >> $GITHUB_OUTPUT
-            echo "✅ Part 1 complete (attempt 3)!"
-            exit 0
-          else
-            echo "status=failed" >> $GITHUB_OUTPUT
-            echo "❌ Part 1 failed after 3 attempts"
-            exit 1
-          fi
-
-      - name: Fetch Part 2 puzzle
-        if: steps.check_part1.outputs.status == 'correct'
-        env:
-          AOC_SESSION: ${{ secrets.AOC_SESSION_COOKIE }}
-          FORCE_DAY: ${{ steps.set_day.outputs.day }}
-          FORCE_YEAR: ${{ steps.set_day.outputs.year }}
-        run: |
-          # Re-fetch puzzle to get Part 2 (now unlocked)
-          python aoc-automation/solve_daily.py
-
-      - name: Solve Part 2 with Claude
-        if: steps.check_part1.outputs.status == 'correct'
-        uses: anthropics/claude-code-action@v1
-        with:
-          anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          prompt: |
-            Part 1 is complete! Now solve Part 2.
-
-            The puzzle description (with Part 2 now unlocked) is in ${{ steps.set_day.outputs.year }}/${{ steps.set_day.outputs.day }}/puzzle.md
-            Your Part 1 solution is in ${{ steps.set_day.outputs.year }}/${{ steps.set_day.outputs.day }}/day${{ steps.set_day.outputs.day }}.py
-
-            Task:
-            - Read the Part 2 description from puzzle.md
-            - Implement part2() function in the existing file
-            - Reuse helper functions from part1() if useful
-            - Test your solution
-            - Follow CLAUDE.md guidelines
-          claude_args: "--allowedTools Read,Write,Edit,Bash,Glob,Grep --max-turns 15"
-
-      - name: Run Part 2 solution (Attempt 1)
-        if: steps.check_part1.outputs.status == 'correct'
-        id: run_part2_attempt1
-        run: |
-          YEAR="${{ steps.set_day.outputs.year }}"
-          DAY="${{ steps.set_day.outputs.day }}"
-          cd "${YEAR}/${DAY}"
-          python "day${DAY}.py" > output.txt 2>&1 || true
-          cat output.txt
-          ANSWER2=$(sed -n '2p' output.txt)
-          echo "answer2=$ANSWER2" >> $GITHUB_OUTPUT
-
-      - name: Submit Part 2 (Attempt 1)
-        if: steps.run_part2_attempt1.outputs.answer2 != ''
-        id: submit_part2_attempt1
-        env:
-          AOC_SESSION: ${{ secrets.AOC_SESSION_COOKIE }}
-          DRY_RUN: ${{ inputs.dry_run }}
-          YEAR: ${{ steps.set_day.outputs.year }}
-          DAY: ${{ steps.set_day.outputs.day }}
-        run: |
-          python aoc-automation/submit_answer.py 2 "${{ steps.run_part2_attempt1.outputs.answer2 }}" "$DAY" "$YEAR"
-
-      - name: Retry Part 2 (Attempt 2)
-        if: steps.submit_part2_attempt1.outputs.status == 'wrong'
-        uses: anthropics/claude-code-action@v1
-        with:
-          anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          prompt: |
-            Your previous answer for Part 2 was WRONG.
-
-            Submitted answer: ${{ steps.run_part2_attempt1.outputs.answer2 }}
-            Feedback: ${{ steps.submit_part2_attempt1.outputs.feedback || 'wrong answer' }}
-
-            Please review your solution in ${{ steps.set_day.outputs.year }}/${{ steps.set_day.outputs.day }}/day${{ steps.set_day.outputs.day }}.py
-            - Check your part2() function logic carefully
-            - Look for off-by-one errors, edge cases, or parsing issues
-            - Test with examples from puzzle.md if available
-            - Fix the part2() function and test again
-          claude_args: "--allowedTools Read,Write,Edit,Bash,Glob,Grep --max-turns 10"
-
-      - name: Run Part 2 (Attempt 2)
-        if: steps.submit_part2_attempt1.outputs.status == 'wrong'
-        id: run_part2_attempt2
-        run: |
-          YEAR="${{ steps.set_day.outputs.year }}"
-          DAY="${{ steps.set_day.outputs.day }}"
-          cd "${YEAR}/${DAY}"
-          python "day${DAY}.py" > output.txt 2>&1 || true
-          cat output.txt
-          ANSWER2=$(sed -n '2p' output.txt)
-          echo "answer2=$ANSWER2" >> $GITHUB_OUTPUT
-
-      - name: Submit Part 2 (Attempt 2)
-        id: submit_part2_attempt2
-        if: steps.submit_part2_attempt1.outputs.status == 'wrong' && steps.run_part2_attempt2.outputs.answer2 != ''
-        env:
-          AOC_SESSION: ${{ secrets.AOC_SESSION_COOKIE }}
-          DRY_RUN: ${{ inputs.dry_run }}
-          YEAR: ${{ steps.set_day.outputs.year }}
-          DAY: ${{ steps.set_day.outputs.day }}
-        run: |
-          python aoc-automation/submit_answer.py 2 "${{ steps.run_part2_attempt2.outputs.answer2 }}" "$DAY" "$YEAR"
-
-      - name: Retry Part 2 (Attempt 3)
-        if: steps.submit_part2_attempt2.outputs.status == 'wrong'
-        uses: anthropics/claude-code-action@v1
-        with:
-          anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          prompt: |
-            Your answer was WRONG again (attempt 2/3) for Part 2.
-
-            Previous answers:
-            - Attempt 1: ${{ steps.run_part2_attempt1.outputs.answer2 }} (${{ steps.submit_part2_attempt1.outputs.feedback || 'wrong' }})
-            - Attempt 2: ${{ steps.run_part2_attempt2.outputs.answer2 }} (${{ steps.submit_part2_attempt2.outputs.feedback || 'wrong' }})
-
-            This is your last chance. Please:
-            - Re-read the Part 2 description very carefully
-            - Check if you're solving the right problem
-            - Test with ALL examples from puzzle.md
-            - Consider completely different approaches if needed
-            - Fix part2() in ${{ steps.set_day.outputs.year }}/${{ steps.set_day.outputs.day }}/day${{ steps.set_day.outputs.day }}.py
-          claude_args: "--allowedTools Read,Write,Edit,Bash,Glob,Grep --max-turns 10"
-
-      - name: Run Part 2 (Attempt 3)
-        if: steps.submit_part2_attempt2.outputs.status == 'wrong'
-        id: run_part2_attempt3
-        run: |
-          YEAR="${{ steps.set_day.outputs.year }}"
-          DAY="${{ steps.set_day.outputs.day }}"
-          cd "${YEAR}/${DAY}"
-          python "day${DAY}.py" > output.txt 2>&1 || true
-          cat output.txt
-          ANSWER2=$(sed -n '2p' output.txt)
-          echo "answer2=$ANSWER2" >> $GITHUB_OUTPUT
-
-      - name: Submit Part 2 (Attempt 3)
-        id: submit_part2_attempt3
-        if: steps.submit_part2_attempt2.outputs.status == 'wrong' && steps.run_part2_attempt3.outputs.answer2 != ''
-        env:
-          AOC_SESSION: ${{ secrets.AOC_SESSION_COOKIE }}
-          DRY_RUN: ${{ inputs.dry_run }}
-          YEAR: ${{ steps.set_day.outputs.year }}
-          DAY: ${{ steps.set_day.outputs.day }}
-        run: |
-          python aoc-automation/submit_answer.py 2 "${{ steps.run_part2_attempt3.outputs.answer2 }}" "$DAY" "$YEAR"
-
-      - name: Check Part 2 Final Status
-        if: steps.check_part1.outputs.status == 'correct'
-        id: check_part2
-        run: |
-          # Determine final status from all attempts
-          if [ "${{ steps.submit_part2_attempt1.outputs.status }}" == "correct" ] || [ "${{ steps.submit_part2_attempt1.outputs.status }}" == "already_solved" ]; then
-            echo "status=correct" >> $GITHUB_OUTPUT
-            echo "✅ Part 2 complete (attempt 1)!"
-          elif [ "${{ steps.submit_part2_attempt2.outputs.status }}" == "correct" ] || [ "${{ steps.submit_part2_attempt2.outputs.status }}" == "already_solved" ]; then
-            echo "status=correct" >> $GITHUB_OUTPUT
-            echo "✅ Part 2 complete (attempt 2)!"
-          elif [ "${{ steps.submit_part2_attempt3.outputs.status }}" == "correct" ] || [ "${{ steps.submit_part2_attempt3.outputs.status }}" == "already_solved" ]; then
-            echo "status=correct" >> $GITHUB_OUTPUT
-            echo "✅ Part 2 complete (attempt 3)!"
-          else
-            echo "status=failed" >> $GITHUB_OUTPUT
-            echo "⚠️  Part 2 failed after 3 attempts (Part 1 was successful)"
-          fi
-
-      - name: Create PR with both solutions
-        if: steps.check_part1.outputs.status == 'correct'
-        uses: anthropics/claude-code-action@v1
-        with:
-          anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          prompt: |
-            Create a PR for this completed solution:
-
-            - Branch name: aoc-${{ steps.set_day.outputs.year }}-day-${{ steps.set_day.outputs.day }}
-            - Title: 🎄 AoC ${{ steps.set_day.outputs.year }} Day ${{ steps.set_day.outputs.day }}
-            - PR body should include:
-              * Part 1 status: ${{ steps.check_part1.outputs.status }}
-              * Part 2 status: ${{ steps.check_part2.outputs.status || 'not attempted' }}
-              * Files: day${{ steps.set_day.outputs.day }}.py, input.txt, puzzle.md
-          claude_args: "--allowedTools Read,Write,Edit,Bash,Glob,Grep --max-turns 5"
+            **Important:**
+            - The puzzle might already show Part 2 if Part 1 was previously solved
+            - Determine which part(s) need solving by reading puzzle.md
+            - Always test with the example data from puzzle.md before submitting
+            - Commit after EACH part is solved (Part 1, then Part 2)
+            - Follow the patterns in CLAUDE.md
+          claude_args: "--allowedTools Read,Write,Edit,Bash,Glob,Grep --max-turns 50"

@@ -94,90 +94,10 @@ class AoCClient:
         response = self.session.post(url, data=data, headers=headers)
         response.raise_for_status()
 
-        html = response.text
-        html_lower = html.lower()
-
-        # Parse response - check for correct answers first
-        if "that's the right answer" in html_lower or "that's right" in html_lower:
-            return {
-                'status': 'correct',
-                'message': html,
-                'feedback': None,
-                'wait_time': 0
-            }
-
-        elif "did you already complete it" in html_lower or "already complete" in html_lower:
-            return {
-                'status': 'already_solved',
-                'message': html,
-                'feedback': None,
-                'wait_time': 0
-            }
-
-        elif "answer too recently" in html_lower or ("you have" in html_lower and "left to wait" in html_lower):
-            # Extract wait time
-            wait_time = self._parse_wait_time(html)
-            return {
-                'status': 'rate_limit',
-                'message': html,
-                'feedback': None,
-                'wait_time': wait_time
-            }
-
-        elif "too high" in html_lower:
-            return {
-                'status': 'wrong',
-                'message': html,
-                'feedback': 'too_high',
-                'wait_time': 0
-            }
-
-        elif "too low" in html_lower:
-            return {
-                'status': 'wrong',
-                'message': html,
-                'feedback': 'too_low',
-                'wait_time': 0
-            }
-
-        elif "not the right answer" in html_lower or "that's not right" in html_lower:
-            return {
-                'status': 'wrong',
-                'message': html,
-                'feedback': None,
-                'wait_time': 0
-            }
-
-        else:
-            # Unknown response - log it for debugging
-            print(f"⚠️  Unknown response from AoC:")
-            print(f"First 500 chars: {html[:500]}")
-            return {
-                'status': 'unknown',
-                'message': html,
-                'feedback': None,
-                'wait_time': 0
-            }
-
-    def _parse_wait_time(self, html: str) -> int:
-        """Parse wait time from rate limit message"""
-        # Look for patterns like "5m 23s" or "42s" or "1m 2s"
-        match = re.search(r'(\d+)m\s*(\d+)s', html)
-        if match:
-            minutes = int(match.group(1))
-            seconds = int(match.group(2))
-            return minutes * 60 + seconds
-
-        match = re.search(r'(\d+)s', html)
-        if match:
-            return int(match.group(1))
-
-        match = re.search(r'(\d+)m', html)
-        if match:
-            return int(match.group(1)) * 60
-
-        # Default to 60 seconds if can't parse
-        return 60
+        # Return the full HTML - let Claude parse it
+        return {
+            'message': response.text
+        }
 
     def get_answer_from_page(self, day: int, part: int) -> str | None:
         """

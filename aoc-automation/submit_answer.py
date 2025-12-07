@@ -33,13 +33,6 @@ def main():
     if dry_run:
         print("🧪 DRY RUN - Not actually submitting")
         print("✓ Would have submitted successfully")
-
-        # Set output for workflow
-        github_output = os.getenv('GITHUB_OUTPUT')
-        if github_output:
-            with open(github_output, 'a') as f:
-                f.write(f"status=correct\n")
-                f.write(f"answer={answer}\n")
         sys.exit(0)
 
     # Submit answer
@@ -48,42 +41,19 @@ def main():
     try:
         result = client.submit_answer(day, part, answer)
 
-        status = result['status']
-        feedback = result.get('feedback')
-        wait_time = result.get('wait_time', 0)
+        # Extract the article content for Claude to read
+        from bs4 import BeautifulSoup
+        soup = BeautifulSoup(result['message'], 'html.parser')
+        article = soup.find('article')
 
-        if status == 'correct':
-            print("✅ CORRECT! The answer is right!")
-        elif status == 'already_solved':
-            print("ℹ️  Already solved this part")
-        elif status == 'wrong':
-            print(f"❌ WRONG ANSWER")
-            if feedback == 'too_high':
-                print("   Hint: Your answer is too high")
-            elif feedback == 'too_low':
-                print("   Hint: Your answer is too low")
-        elif status == 'rate_limit':
-            print(f"⏳ Rate limited - wait {wait_time}s before trying again")
-            if wait_time > 0:
-                print(f"   Waiting {wait_time} seconds...")
-                time.sleep(wait_time)
+        print("\n" + "="*70)
+        print("RESPONSE FROM ADVENT OF CODE:")
+        print("="*70)
+        if article:
+            print(article.get_text().strip())
         else:
-            print(f"⚠️  Unknown status: {status}")
-
-        # Set output for workflow
-        github_output = os.getenv('GITHUB_OUTPUT')
-        if github_output:
-            with open(github_output, 'a') as f:
-                f.write(f"status={status}\n")
-                f.write(f"answer={answer}\n")
-                if feedback:
-                    f.write(f"feedback={feedback}\n")
-
-        # Exit code
-        if status in ['correct', 'already_solved']:
-            sys.exit(0)
-        else:
-            sys.exit(1)
+            print(result['message'][:500])
+        print("="*70 + "\n")
 
     except Exception as e:
         print(f"❌ Error submitting answer: {e}")

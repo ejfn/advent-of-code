@@ -94,7 +94,7 @@ jobs:
             - Follow coding guidelines in CLAUDE.md
             - Test your solution before finishing
             - Add a stub part2() function for now
-          claude_args: "--max-turns 15"
+          claude_args: "--allowedTools Read,Write,Edit,Bash,Glob,Grep --max-turns 15"
 
       - name: Run solution
         id: run_solution
@@ -169,7 +169,7 @@ jobs:
             - Reuse helper functions from part1() if useful
             - Test your solution
             - Follow CLAUDE.md guidelines
-          claude_args: "--max-turns 15"
+          claude_args: "--allowedTools Read,Write,Edit,Bash,Glob,Grep --max-turns 15"
 
       - name: Run Part 2 solution
         if: steps.submit_part1.outputs.status == 'correct' || steps.submit_part1.outputs.status == 'already_solved'
@@ -212,4 +212,4 @@ jobs:
               * Part 1 status: ${{ steps.submit_part1.outputs.status }}
               * Part 2 status: ${{ steps.submit_part2_final.outputs.status || 'not attempted' }}
               * Files: day${{ steps.set_day.outputs.day }}.py, input.txt, puzzle.md
-          claude_args: "--max-turns 5"
+          claude_args: "--allowedTools Read,Write,Edit,Bash,Glob,Grep --max-turns 5"

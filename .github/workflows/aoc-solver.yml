@@ -3,21 +3,21 @@ name: AoC Solver
 on:
   schedule:
     # Run at 12:01 AM EST daily in December (5:01 AM UTC)
-    - cron: '1 5 * 12 *'
+    - cron: "0 5 * 12 *"
 
   workflow_dispatch:
     inputs:
       day:
-        description: 'Day to solve (1-25)'
+        description: "Day to solve (1-25)"
         required: true
         type: number
       year:
-        description: 'Year'
+        description: "Year"
         required: true
         type: number
         default: 2025
 
-run-name: 'AoC ${{ inputs.year || ''2025'' }} Day ${{ inputs.day || github.run_number }}'
+run-name: "AoC ${{ inputs.year || '2025' }} Day ${{ inputs.day || github.run_number }}"
 
 permissions:
   contents: write
@@ -34,7 +34,7 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version: '3.13'
+          python-version: "3.13"
 
       - name: Install dependencies
         run: pip install -r requirements.txt

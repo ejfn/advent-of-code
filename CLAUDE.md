@@ -20,7 +20,7 @@ YYYY/
   - Install with: `pip install <package>`
 - No shared utilities between days
 
-**Running:** `cd YYYY/N && python dayN.py`
+**Running:** `python YYYY/N/dayN.py`
 
 ## Problem-Solving Workflow
 

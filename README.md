@@ -2,16 +2,14 @@
 
 Solutions for [Advent of Code](https://adventofcode.com/) puzzles.
 
-## About This Repository
+## A Note About AI
 
-This repository is an experiment in AI-assisted automation using Claude Code. The goal is to explore how AI can autonomously solve programming challenges, manage workflows, and commit solutions - not to compete on leaderboards or circumvent the learning experience that Advent of Code provides.
+**On Advent of Code's Stance**: The [AoC creator discourages AI usage](https://adventofcode.com/2025/about) for solving puzzles. That's absolutely valid - using AI to solve puzzles defeats the purpose of learning algorithmic problem-solving.
 
-**Timeline:** AI automation was added in 2025. Solutions committed before 2025 were solved manually. Solutions from 2025 onwards (regardless of which AoC event year they're for) are AI-assisted.
+**This Repository's Purpose**: This isn't about learning algorithms; it's about learning to work effectively with AI automation tools, which is itself a valuable skill. This repository is an experiment in AI-assisted automation using Claude Code, exploring how AI can autonomously solve programming challenges, manage workflows, and commit solutions. It's a technical exploration of AI capabilities, GitHub Actions automation, and agent-based programming - not a competition or a shortcut to bypass learning.
 
-**Key Points:**
-- **Educational Purpose**: This is a technical exploration of AI capabilities, GitHub Actions automation, and agent-based programming
-- **Not for Competition**: No leaderboard participation - runs are scheduled well after puzzle release (12:00 AM EST)
-- **Learning Tool**: Understanding how to work *with* AI on complex tasks is a valuable skill
-- **Open Source**: The entire workflow and prompts are public, making this a learning resource for others interested in AI automation
+**Timeline**: AI automation was added in 2025. Solutions committed before 2025 were solved manually. Solutions from 2025 onwards (regardless of which AoC event year they're for) are AI-assisted.
+
+**Transparency**: The entire workflow and prompts are public, making this a learning resource for others interested in AI automation. There is no leaderboard competition involved.
 
 If you're new to Advent of Code, I strongly encourage you to solve puzzles yourself first - the learning experience is invaluable and far more rewarding than seeing AI-generated solutions.

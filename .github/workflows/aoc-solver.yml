@@ -2,7 +2,7 @@ name: AoC Solver
 
 on:
   schedule:
-    # Run at 12:01 AM EST daily in December (5:01 AM UTC)
+    # Run at 12:00 AM EST daily in December (5:00 AM UTC)
     - cron: "0 5 * 12 *"
 
   workflow_dispatch:

@@ -24,6 +24,9 @@ def evaluate_left_to_right(numbers, operators):
             result = result + numbers[i + 1]
         elif op == '*':
             result = result * numbers[i + 1]
+        elif op == '||':
+            # Concatenation: combine digits
+            result = int(str(result) + str(numbers[i + 1]))
     return result
 
 def can_produce_value(test_value, numbers):
@@ -51,10 +54,30 @@ def part1():
 
     return total
 
+def can_produce_value_with_concat(test_value, numbers):
+    """Check if any combination of +, *, and || can produce test_value"""
+    if len(numbers) == 1:
+        return numbers[0] == test_value
+
+    # Number of operators needed is len(numbers) - 1
+    num_operators = len(numbers) - 1
+
+    # Try all combinations of +, *, and ||
+    for operators in product(['+', '*', '||'], repeat=num_operators):
+        if evaluate_left_to_right(numbers, operators) == test_value:
+            return True
+    return False
+
 def part2():
     """Solve part 2"""
-    # Part 2 will be implemented after Part 1 is complete
-    return 0
+    equations = parse_input(os.path.join(sys.path[0], 'input.txt'))
+
+    total = 0
+    for test_value, numbers in equations:
+        if can_produce_value_with_concat(test_value, numbers):
+            total += test_value
+
+    return total
 
 if __name__ == "__main__":
     print(f"Part 1: {part1()}")

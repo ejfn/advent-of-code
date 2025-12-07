@@ -68,35 +68,28 @@ jobs:
           prompt: |
             Solve Advent of Code ${{ steps.set_day.outputs.year }} Day ${{ steps.set_day.outputs.day }}.
 
-            **Files:**
-            - Puzzle description: `${{ steps.set_day.outputs.year }}/${{ steps.set_day.outputs.day }}/puzzle.md`
-            - Your input data: `${{ steps.set_day.outputs.year }}/${{ steps.set_day.outputs.day }}/input.txt`
-            - Solution file: `${{ steps.set_day.outputs.year }}/${{ steps.set_day.outputs.day }}/day${{ steps.set_day.outputs.day }}.py`
+            YEAR=${{ steps.set_day.outputs.year }}
+            DAY=${{ steps.set_day.outputs.day }}
+            AOC_SESSION=${{ secrets.AOC_SESSION_COOKIE }}
 
-            **Workflow:**
-            1. Read `CLAUDE.md` for coding guidelines
-            2. Read the puzzle description to understand Part 1
-            3. Implement part1() function in the solution file
-            4. Test your solution locally first
-            5. Submit your answer:
-               ```bash
-               export AOC_SESSION=${{ secrets.AOC_SESSION_COOKIE }}
-               export YEAR=${{ steps.set_day.outputs.year }}
-               export DAY=${{ steps.set_day.outputs.day }}
-               python aoc-automation/submit_answer.py 1 <your_answer> $DAY $YEAR
-               ```
-            6. The script will output the response from AoC - READ IT to see if correct
-            7. If wrong, analyze the feedback and retry (you can submit multiple times)
-            8. Once Part 1 is CORRECT: **commit the solution to main branch**
-            9. Re-fetch the puzzle to get Part 2: `python aoc-automation/solve_daily.py`
-            10. Implement part2() function
-            11. Submit Part 2 the same way
-            12. Once Part 2 is CORRECT: **commit again**
+            **EXACT filenames (DO NOT CHANGE):**
+            - Puzzle: `${{ steps.set_day.outputs.year }}/${{ steps.set_day.outputs.day }}/puzzle.md`
+            - Input: `${{ steps.set_day.outputs.year }}/${{ steps.set_day.outputs.day }}/input.txt`
+            - Solution: `${{ steps.set_day.outputs.year }}/${{ steps.set_day.outputs.day }}/day${{ steps.set_day.outputs.day }}.py` ← MUST use this exact name!
 
-            **Important:**
-            - The puzzle might already show Part 2 if Part 1 was previously solved
-            - Determine which part(s) need solving by reading puzzle.md
-            - Always test with the example data from puzzle.md before submitting
-            - Commit after EACH part is solved (Part 1, then Part 2)
-            - Follow the patterns in CLAUDE.md
+            **Steps:**
+            1. Read CLAUDE.md for guidelines
+            2. Read puzzle.md - determine if Part 1 and/or Part 2 need solving
+            3. Write solution to day${{ steps.set_day.outputs.day }}.py (NOT test_day*.py!)
+            4. Test it: `cd ${{ steps.set_day.outputs.year }}/${{ steps.set_day.outputs.day }} && python day${{ steps.set_day.outputs.day }}.py`
+            5. Submit answer: `python aoc-automation/submit_answer.py <part> <answer> $DAY $YEAR`
+            6. READ the response - it will show if correct/wrong
+            7. If wrong: fix and retry step 5
+            8. If correct: IMMEDIATELY run `git add . && git commit -m "solve: day $DAY part X" && git push`
+            9. Repeat for Part 2 if needed (re-fetch puzzle first with solve_daily.py)
+
+            **CRITICAL:**
+            - Use EXACT filename: day${{ steps.set_day.outputs.day }}.py (not test_*.py!)
+            - Push after EVERY correct answer
+            - Read CLAUDE.md for code structure
           claude_args: "--allowedTools Read,Write,Edit,Bash,Glob,Grep --max-turns 50"

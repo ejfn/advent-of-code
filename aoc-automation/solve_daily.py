@@ -73,48 +73,7 @@ def main():
     else:
         print(f"⚠️  CLAUDE.md not found, Claude will solve without project guidelines")
 
-    # Create prompt for Claude
-    input_preview = '\n'.join(input_data.split('\n')[:20])
-    if len(input_data.split('\n')) > 20:
-        input_preview += f"\n... ({len(input_data.split('\n'))} total lines)"
-
-    prompt = f"""Solve Advent of Code {year} Day {day}.
-
-# Puzzle Description
-
-{puzzle_md}
-
-# Your Input (preview)
-
-```
-{input_preview}
-```
-
-Full input is at: {work_dir}/input.txt
-
-# Guidelines
-
-{guidelines}
-
-# Task
-
-1. Read the puzzle carefully
-2. Implement the solution in {year}/{day}/day{day}.py
-3. Follow the repository structure:
-   - Load input using: os.path.join(sys.path[0], 'input.txt')
-   - Implement part1() and part2() functions
-   - Print results directly (no return values needed)
-   - Call functions in if __name__ == "__main__"
-
-4. Test your solution by running: python {year}/{day}/day{day}.py
-
-Generate the complete solution now.
-"""
-
-    # Save prompt for reference
-    prompt_file = Path("prompt.txt")
-    prompt_file.write_text(prompt)
-    print(f"✓ Prompt saved to {prompt_file}")
+    # No longer need to create prompt.txt - Claude reads files directly
 
     # Export environment variables for workflow
     print()

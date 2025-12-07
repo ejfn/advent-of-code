@@ -29,6 +29,7 @@ run-name: 'AoC ${{ inputs.year || ''2025'' }} Day ${{ inputs.day || github.run_n
 permissions:
   contents: write
   pull-requests: write
+  id-token: write
 
 jobs:
   solve:
@@ -131,17 +132,6 @@ jobs:
         run: |
           python aoc-automation/submit_answer.py 1 "${{ steps.run_solution.outputs.answer1 }}" "$DAY" "$YEAR"
 
-      - name: Submit Part 2
-        id: submit_part2
-        if: steps.run_solution.outputs.answer2 != '' && steps.submit_part1.outputs.status == 'correct'
-        env:
-          AOC_SESSION: ${{ secrets.AOC_SESSION_COOKIE }}
-          DRY_RUN: ${{ inputs.dry_run }}
-          YEAR: ${{ steps.set_day.outputs.year }}
-          DAY: ${{ steps.set_day.outputs.day }}
-        run: |
-          python aoc-automation/submit_answer.py 2 "${{ steps.run_solution.outputs.answer2 }}" "$DAY" "$YEAR"
-
       - name: Check Part 1 status
         id: check_part1
         run: |
@@ -207,7 +197,7 @@ jobs:
           python aoc-automation/submit_answer.py 2 "${{ steps.run_part2.outputs.answer2 }}" "$DAY" "$YEAR"
 
       - name: Create PR with both solutions
-        if: always()
+        if: steps.submit_part1.outputs.status == 'correct' || steps.submit_part1.outputs.status == 'already_solved'
         uses: anthropics/claude-code-action@v1
         with:
           anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
@@ -218,6 +208,6 @@ jobs:
             - Title: 🎄 AoC ${{ steps.set_day.outputs.year }} Day ${{ steps.set_day.outputs.day }}
             - PR body should include:
               * Part 1 status: ${{ steps.submit_part1.outputs.status }}
-              * Part 2 status: ${{ steps.submit_part2.outputs.status || steps.submit_part2_final.outputs.status || 'not attempted' }}
-              * Files: dayN.py, input.txt, puzzle.md
+              * Part 2 status: ${{ steps.submit_part2_final.outputs.status || 'not attempted' }}
+              * Files: day${{ steps.set_day.outputs.day }}.py, input.txt, puzzle.md
           claude_args: "--max-turns 5"

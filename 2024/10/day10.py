@@ -68,9 +68,42 @@ def part1():
 
     return total_score
 
+def calculate_trailhead_rating(grid, start_r, start_c):
+    """
+    Calculate the rating of a trailhead (number of distinct hiking trails
+    from this trailhead to any 9-height position)
+    """
+    rows, cols = len(grid), len(grid[0])
+
+    # Use DFS to count all distinct paths
+    def count_paths(r, c):
+        current_height = grid[r][c]
+
+        # Base case: reached a 9
+        if current_height == 9:
+            return 1
+
+        # Count paths through all valid neighbors
+        total_paths = 0
+        for nr, nc in get_neighbors(r, c, rows, cols):
+            if grid[nr][nc] == current_height + 1:
+                total_paths += count_paths(nr, nc)
+
+        return total_paths
+
+    return count_paths(start_r, start_c)
+
 def part2():
-    """Part 2 solution (to be implemented)"""
-    return 0
+    """Calculate sum of ratings of all trailheads"""
+    grid = load_input()
+    trailheads = find_trailheads(grid)
+
+    total_rating = 0
+    for r, c in trailheads:
+        rating = calculate_trailhead_rating(grid, r, c)
+        total_rating += rating
+
+    return total_rating
 
 if __name__ == "__main__":
     print("Part 1:", part1())

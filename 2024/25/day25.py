@@ -62,8 +62,8 @@ def part1():
     return count
 
 def part2():
-    """Part 2 solution."""
-    return "Merry Christmas!"
+    """Part 2 - Day 25 has no Part 2 puzzle, automatically completed!"""
+    return "⭐ All 50 stars collected! Merry Christmas!"
 
 if __name__ == "__main__":
     print(f"Part 1: {part1()}")

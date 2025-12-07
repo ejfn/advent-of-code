@@ -28,8 +28,28 @@ def part2():
     with open(input_path, 'r') as f:
         data = f.read()
 
-    # TODO: Implement part 2
-    return 0
+    # Find all mul(X,Y), do(), and don't() instructions in order
+    # Pattern: mul(X,Y) or do() or don't()
+    pattern = r"mul\((\d{1,3}),(\d{1,3})\)|do\(\)|don't\(\)"
+    matches = re.finditer(pattern, data)
+
+    # Process instructions in order, tracking whether mul is enabled
+    total = 0
+    enabled = True  # mul instructions start enabled
+
+    for match in matches:
+        instruction = match.group(0)
+
+        if instruction == "do()":
+            enabled = True
+        elif instruction == "don't()":
+            enabled = False
+        elif instruction.startswith("mul") and enabled:
+            # Extract the numbers and multiply
+            x, y = match.group(1), match.group(2)
+            total += int(x) * int(y)
+
+    return total
 
 
 if __name__ == "__main__":

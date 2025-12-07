@@ -26,22 +26,21 @@ YYYY/
 
 1. **Read problem carefully** - Don't assume input format
 2. **Create example test file** - Validate parsing before running on full input
-3. **Test Part 1 thoroughly** - Part 2 often changes interpretation completely
-4. **Watch error messages** - "Number too large" usually means parsing error, not math issue
-5. **Update CLAUDE.md** - Add lessons learned after each day
+3. **Test incrementally** - Verify each part works before moving forward
+4. **Watch error messages** - Unexpected values often indicate parsing errors, not logic issues
 
 ## Parsing and Input Handling
 
 **Key Principles:**
 - Character-level vs token-level: Know when to analyze char-by-char vs split on whitespace
-- Space patterns encode structure: Single space vs multiple spaces often matters
-- Vertical column analysis: Use completely blank columns to detect boundaries
-- Part 2 can reverse direction: Left-to-right ↔ right-to-left, rows ↔ columns
+- Whitespace matters: Count spaces, look for patterns in spacing/indentation
+- Boundary detection: Empty lines, blank columns, or repeated patterns often separate sections
+- Directionality: Consider all possible traversal directions and transformations
 
 **Debugging:**
 - Print parsed structures on small examples first
-- Verify numbers and operations before computing results
-- Re-read problem statement multiple times if parsing seems wrong
+- Verify data types and values match expected format
+- Re-read problem statement multiple times if results don't match
 
 ## Performance Guidelines
 

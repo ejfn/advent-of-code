@@ -17,7 +17,7 @@ on:
         type: number
         default: 2025
 
-run-name: "AoC ${{ inputs.year || '2025' }} Day ${{ inputs.day || github.run_number }}"
+run-name: "AoC ${{ inputs.year || '2025' }} ${{ inputs.day && format('Day {0}', inputs.day) || 'Daily Run' }}"
 
 permissions:
   contents: write

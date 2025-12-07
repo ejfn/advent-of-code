@@ -91,7 +91,7 @@ jobs:
                - If only Part 1 is solved: Skip to step 7 (Part 2)
                - If neither solved: Continue to step 3
             3. Write solution to day${{ steps.set_day.outputs.day }}.py (NOT test_day*.py!)
-            4. Test it: `cd ${{ steps.set_day.outputs.year }}/${{ steps.set_day.outputs.day }} && python day${{ steps.set_day.outputs.day }}.py`
+            4. Test it with 120s timeout: `cd ${{ steps.set_day.outputs.year }}/${{ steps.set_day.outputs.day }} && timeout 120 python day${{ steps.set_day.outputs.day }}.py`
             5. Submit answer: `python aoc-automation/submit_answer.py <part> <answer> $DAY $YEAR`
             6. READ the response - if wrong fix & retry, if correct:
                - Git add all files in folder: `git add ${{ steps.set_day.outputs.year }}/${{ steps.set_day.outputs.day }}/`

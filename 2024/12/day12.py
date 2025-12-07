@@ -81,10 +81,82 @@ def part1():
 
     return total_price
 
+def count_corners(region, grid):
+    """
+    Count the number of corners in a region.
+    The number of corners equals the number of sides.
+
+    For each cell, check all 4 possible corner positions:
+    - Top-left, top-right, bottom-left, bottom-right
+
+    A corner exists when:
+    1. Outer corner: Two adjacent edges are boundaries
+    2. Inner corner: Two adjacent edges are inside the region but the diagonal is outside
+    """
+    region_set = set(region)
+    corners = 0
+
+    for r, c in region:
+        # Check all 4 corners of this cell
+        # For each corner, we need to check 3 positions: the two adjacent cells and the diagonal
+
+        # Top-left corner
+        top = (r - 1, c) not in region_set
+        left = (r, c - 1) not in region_set
+        top_left = (r - 1, c - 1) not in region_set
+
+        # Outer corner: both adjacent sides are boundaries
+        if top and left:
+            corners += 1
+        # Inner corner: both adjacent sides are inside but diagonal is outside
+        elif not top and not left and top_left:
+            corners += 1
+
+        # Top-right corner
+        top = (r - 1, c) not in region_set
+        right = (r, c + 1) not in region_set
+        top_right = (r - 1, c + 1) not in region_set
+
+        if top and right:
+            corners += 1
+        elif not top and not right and top_right:
+            corners += 1
+
+        # Bottom-left corner
+        bottom = (r + 1, c) not in region_set
+        left = (r, c - 1) not in region_set
+        bottom_left = (r + 1, c - 1) not in region_set
+
+        if bottom and left:
+            corners += 1
+        elif not bottom and not left and bottom_left:
+            corners += 1
+
+        # Bottom-right corner
+        bottom = (r + 1, c) not in region_set
+        right = (r, c + 1) not in region_set
+        bottom_right = (r + 1, c + 1) not in region_set
+
+        if bottom and right:
+            corners += 1
+        elif not bottom and not right and bottom_right:
+            corners += 1
+
+    return corners
+
 def part2():
-    # Part 2 will be implemented after Part 1 is submitted
-    pass
+    grid = load_input()
+    regions = find_regions(grid)
+
+    total_price = 0
+    for region in regions:
+        area = len(region)
+        sides = count_corners(region, grid)
+        price = area * sides
+        total_price += price
+
+    return total_price
 
 if __name__ == "__main__":
     print(f"Part 1: {part1()}")
-    # print(f"Part 2: {part2()}")
+    print(f"Part 2: {part2()}")

@@ -7,15 +7,15 @@ on:
 
   workflow_dispatch:
     inputs:
-      day:
-        description: "Day to solve (1-25)"
-        required: true
-        type: number
       year:
         description: "Year"
         required: true
         type: number
         default: 2025
+      day:
+        description: "Day to solve (1-25)"
+        required: true
+        type: number
 
 run-name: "AoC ${{ inputs.year || '2025' }} ${{ inputs.day && format('Day {0}', inputs.day) || 'Daily Run' }}"
 

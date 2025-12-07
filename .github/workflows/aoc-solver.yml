@@ -80,13 +80,19 @@ jobs:
         with:
           anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
           prompt: |
-            $(cat prompt.txt)
+            Solve Advent of Code ${{ steps.set_day.outputs.year }} Day ${{ steps.set_day.outputs.day }} Part 1.
 
-            Important:
-            - Implement part1() function first
-            - Follow the coding guidelines in CLAUDE.md
+            The puzzle description is in ${{ steps.set_day.outputs.year }}/${{ steps.set_day.outputs.day }}/puzzle.md
+            Your input data is in ${{ steps.set_day.outputs.year }}/${{ steps.set_day.outputs.day }}/input.txt
+
+            Create the solution at ${{ steps.set_day.outputs.year }}/${{ steps.set_day.outputs.day }}/day${{ steps.set_day.outputs.day }}.py
+
+            Requirements:
+            - Read the puzzle description carefully
+            - Implement part1() function that prints the answer
+            - Follow coding guidelines in CLAUDE.md
             - Test your solution before finishing
-            - You can add a stub part2() function for now
+            - Add a stub part2() function for now
           claude_args: "--max-turns 15"
 
       - name: Run solution
@@ -163,12 +169,13 @@ jobs:
           prompt: |
             Part 1 is complete! Now solve Part 2.
 
-            The updated puzzle description is in prompt.txt (includes Part 2).
-            Your Part 1 solution is already in ${{ steps.set_day.outputs.year }}/${{ steps.set_day.outputs.day }}/day${{ steps.set_day.outputs.day }}.py
+            The puzzle description (with Part 2 now unlocked) is in ${{ steps.set_day.outputs.year }}/${{ steps.set_day.outputs.day }}/puzzle.md
+            Your Part 1 solution is in ${{ steps.set_day.outputs.year }}/${{ steps.set_day.outputs.day }}/day${{ steps.set_day.outputs.day }}.py
 
             Task:
-            - Implement part2() function
-            - Reuse any helper functions from part1() if useful
+            - Read the Part 2 description from puzzle.md
+            - Implement part2() function in the existing file
+            - Reuse helper functions from part1() if useful
             - Test your solution
             - Follow CLAUDE.md guidelines
           claude_args: "--max-turns 15"

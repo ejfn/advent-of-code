@@ -29,7 +29,6 @@ run-name: 'AoC ${{ inputs.year || ''2025'' }} Day ${{ inputs.day || github.run_n
 permissions:
   contents: write
   pull-requests: write
-  id-token: write
 
 jobs:
   solve:

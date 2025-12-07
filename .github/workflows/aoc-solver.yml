@@ -86,12 +86,17 @@ jobs:
             3. Write solution to day${{ steps.set_day.outputs.day }}.py (NOT test_day*.py!)
             4. Test it: `cd ${{ steps.set_day.outputs.year }}/${{ steps.set_day.outputs.day }} && python day${{ steps.set_day.outputs.day }}.py`
             5. Submit answer: `python aoc-automation/submit_answer.py <part> <answer> $DAY $YEAR`
-            6. READ the response - if wrong fix & retry, if correct commit & push then continue
+            6. READ the response - if wrong fix & retry, if correct:
+               - Git add all files in folder: `git add ${{ steps.set_day.outputs.year }}/${{ steps.set_day.outputs.day }}/`
+               - Commit and push, then continue
             7. Re-fetch puzzle for Part 2: `python aoc-automation/solve_daily.py`
-            8. Implement part2() in same file, test, submit, commit & push
+            8. Implement part2() in same file, test, submit:
+               - Git add all files in folder: `git add ${{ steps.set_day.outputs.year }}/${{ steps.set_day.outputs.day }}/`
+               - Commit and push
 
             **CRITICAL:**
             - If BOTH parts already solved: DO NOTHING and exit
             - Use EXACT filename: day${{ steps.set_day.outputs.day }}.py (not test_*.py!)
+            - ALWAYS git add the entire day folder to commit all files (dayN.py, input.txt, etc.)
             - Git push after EVERY correct answer
           claude_args: "--allowedTools Read,Write,Edit,Bash,Glob,Grep --max-turns 50"

@@ -84,13 +84,21 @@ class AoCClient:
         url = f"{self.base_url}/day/{day}/answer"
         data = {'level': str(part), 'answer': str(answer).strip()}
 
-        response = self.session.post(url, data=data)
+        # Add headers to mimic browser behavior
+        headers = {
+            'Content-Type': 'application/x-www-form-urlencoded',
+            'Referer': f'{self.base_url}/day/{day}',
+            'Origin': 'https://adventofcode.com',
+        }
+
+        response = self.session.post(url, data=data, headers=headers)
         response.raise_for_status()
 
         html = response.text
+        html_lower = html.lower()
 
-        # Parse response
-        if "That's the right answer" in html:
+        # Parse response - check for correct answers first
+        if "that's the right answer" in html_lower or "that's right" in html_lower:
             return {
                 'status': 'correct',
                 'message': html,
@@ -98,7 +106,7 @@ class AoCClient:
                 'wait_time': 0
             }
 
-        elif "Did you already complete it" in html:
+        elif "did you already complete it" in html_lower or "already complete" in html_lower:
             return {
                 'status': 'already_solved',
                 'message': html,
@@ -106,23 +114,7 @@ class AoCClient:
                 'wait_time': 0
             }
 
-        elif "too high" in html.lower():
-            return {
-                'status': 'wrong',
-                'message': html,
-                'feedback': 'too_high',
-                'wait_time': 0
-            }
-
-        elif "too low" in html.lower():
-            return {
-                'status': 'wrong',
-                'message': html,
-                'feedback': 'too_low',
-                'wait_time': 0
-            }
-
-        elif "answer too recently" in html or "You have" in html and "left to wait" in html:
+        elif "answer too recently" in html_lower or ("you have" in html_lower and "left to wait" in html_lower):
             # Extract wait time
             wait_time = self._parse_wait_time(html)
             return {
@@ -132,10 +124,36 @@ class AoCClient:
                 'wait_time': wait_time
             }
 
-        else:
-            # Generic wrong answer
+        elif "too high" in html_lower:
             return {
                 'status': 'wrong',
+                'message': html,
+                'feedback': 'too_high',
+                'wait_time': 0
+            }
+
+        elif "too low" in html_lower:
+            return {
+                'status': 'wrong',
+                'message': html,
+                'feedback': 'too_low',
+                'wait_time': 0
+            }
+
+        elif "not the right answer" in html_lower or "that's not right" in html_lower:
+            return {
+                'status': 'wrong',
+                'message': html,
+                'feedback': None,
+                'wait_time': 0
+            }
+
+        else:
+            # Unknown response - log it for debugging
+            print(f"⚠️  Unknown response from AoC:")
+            print(f"First 500 chars: {html[:500]}")
+            return {
+                'status': 'unknown',
                 'message': html,
                 'feedback': None,
                 'wait_time': 0

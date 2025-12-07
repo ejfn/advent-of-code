@@ -46,7 +46,7 @@ jobs:
 
       - name: Install dependencies
         run: |
-          pip install requests beautifulsoup4 lxml
+          pip install -r requirements.txt
 
       - name: Determine day and year
         id: set_day

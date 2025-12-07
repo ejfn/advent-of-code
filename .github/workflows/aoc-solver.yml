@@ -49,6 +49,13 @@ jobs:
             DAY=$(date +%-d)
             YEAR=$(date +%Y)
           fi
+
+          # AoC only has 25 days, exit if day > 25
+          if [ "$DAY" -gt 25 ]; then
+            echo "Day $DAY is beyond AoC range (1-25), exiting"
+            exit 0
+          fi
+
           echo "day=$DAY" >> $GITHUB_OUTPUT
           echo "year=$YEAR" >> $GITHUB_OUTPUT
           echo "🎄 Solving AoC $YEAR Day $DAY"

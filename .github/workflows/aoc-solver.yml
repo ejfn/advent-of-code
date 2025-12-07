@@ -98,5 +98,6 @@ jobs:
             - If BOTH parts already solved: DO NOTHING and exit
             - Use EXACT filename: day${{ steps.set_day.outputs.day }}.py (not test_*.py!)
             - ALWAYS git add the entire day folder to commit all files (dayN.py, input.txt, etc.)
+            - If you install new packages with pip: update requirements.txt and git add it too
             - Git push after EVERY correct answer
           claude_args: "--allowedTools Read,Write,Edit,Bash,Glob,Grep --max-turns 50"

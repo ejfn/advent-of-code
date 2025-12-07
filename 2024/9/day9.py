@@ -64,13 +64,62 @@ def part1():
 
     return checksum
 
+def compact_disk_whole_files(blocks):
+    """Move whole files to leftmost contiguous free space, in order of decreasing file ID"""
+    blocks = blocks.copy()  # Don't modify original
+
+    # Find all files (their positions and lengths)
+    max_file_id = max(b for b in blocks if b is not None)
+
+    # Process files in decreasing order of file ID
+    for file_id in range(max_file_id, -1, -1):
+        # Find all positions of this file
+        file_positions = [i for i, b in enumerate(blocks) if b == file_id]
+        if not file_positions:
+            continue
+
+        file_start = file_positions[0]
+        file_length = len(file_positions)
+
+        # Find leftmost contiguous free space that can fit this file
+        best_pos = None
+        i = 0
+        while i < file_start:  # Only consider positions to the left of the file
+            if blocks[i] is None:
+                # Found start of free space, check if it's big enough
+                free_start = i
+                free_length = 0
+                while i < len(blocks) and blocks[i] is None:
+                    free_length += 1
+                    i += 1
+
+                if free_length >= file_length:
+                    best_pos = free_start
+                    break
+            else:
+                i += 1
+
+        # If we found a suitable position, move the file
+        if best_pos is not None:
+            # Clear old positions
+            for pos in file_positions:
+                blocks[pos] = None
+            # Write to new positions
+            for j in range(file_length):
+                blocks[best_pos + j] = file_id
+
+    return blocks
+
 def part2():
     input_path = os.path.join(sys.path[0], 'input.txt')
     with open(input_path, 'r') as f:
         disk_map = f.read().strip()
 
-    # TODO: Implement part 2
-    return 0
+    blocks = parse_disk_map(disk_map)
+    compacted = compact_disk_whole_files(blocks)
+    checksum = calculate_checksum(compacted)
+
+    return checksum
 
 if __name__ == "__main__":
     print("Part 1:", part1())

@@ -81,8 +81,8 @@ jobs:
             - Solution: `${{ steps.set_day.outputs.year }}/${{ steps.set_day.outputs.day }}/day${{ steps.set_day.outputs.day }}.py` ← MUST use this exact name!
 
             **Steps:**
-            1. Fetch puzzle: `FORCE_DAY=$DAY FORCE_YEAR=$YEAR python aoc-automation/solve_daily.py`
-            2. Read CLAUDE.md for guidelines
+            1. Read CLAUDE.md for guidelines
+            2. Fetch puzzle: `FORCE_DAY=$DAY FORCE_YEAR=$YEAR python aoc-automation/solve_daily.py`
             3. Read puzzle.md and check if parts are already solved
                - If puzzle.md shows "Your puzzle answer was..." for BOTH parts: YOU'RE DONE! Exit immediately.
                - If only Part 1 is solved: Skip to step 8 (Part 2)

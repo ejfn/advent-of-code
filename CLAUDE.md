@@ -25,38 +25,36 @@ YYYY/
 ## Problem-Solving Workflow
 
 1. **Read problem carefully** - Don't assume input format
-2. **Create example test file** - Validate parsing before running on full input
-3. **Test incrementally** - Verify each part works before moving forward
-4. **Watch error messages** - Unexpected values often indicate parsing errors, not logic issues
+2. **Create example test file** - Use the example input from the puzzle description
+3. **Test with example first** - Validate parsing and logic on example before running on full input
+4. **Test incrementally** - Verify each part works before moving forward
+5. **Watch error messages** - Unexpected values often indicate parsing errors, not logic issues
 
-## Parsing and Input Handling
+## Parsing Tips
 
-**Key Principles:**
-- Character-level vs token-level: Know when to analyze char-by-char vs split on whitespace
-- Whitespace matters: Count spaces, look for patterns in spacing/indentation
-- Boundary detection: Empty lines, blank columns, or repeated patterns often separate sections
-- Directionality: Consider all possible traversal directions and transformations
+**Read the input format carefully:**
+- Check if you need to parse character-by-character or split by whitespace
+- Look for empty lines that separate sections
+- Pay attention to spaces and indentation patterns
 
-**Debugging:**
-- Print parsed structures on small examples first
-- Verify data types and values match expected format
-- Re-read problem statement multiple times if results don't match
+**Debug parsing first:**
+- Print the parsed data structure on the example input
+- Verify it matches what you expect before solving the problem
+- If answers are wrong, re-check parsing before debugging logic
 
-## Performance Guidelines
+## Performance Tips
 
-**Combinatorial Problems:**
-- Avoid `itertools.combinations` if n > 15 (exponential time)
-- Prefer: Greedy stack algorithms (monotonic stack) or DP
-- Example: C(20,12) ≈ 10^6+
+**Common optimizations:**
+- Use `set()` for membership checks instead of lists
+- Use `collections.deque` for queues instead of lists
+- Add `@cache` decorator to recursive functions
+- Use `numpy` for large array operations
 
-**Common Optimizations:**
-- Arrays: `numpy`
-- Queues: `collections.deque`
-- Lookups: `set()` for O(1)
-- Recursion: Add memoization if slow
-- Loops: Test Part 2 with examples first to catch infinite loops
+**If your solution hangs:**
+- First check: is it an infinite loop? Add print statements to see if it's making progress
+- If it's trying too many combinations (like `itertools.combinations` with n > 15), you need a different algorithm
+- Look for: greedy approaches, dynamic programming, or mathematical formulas
 
-**Profiling:**
-- Use `cProfile` for bottlenecks
-- Add print statements to track progress
-- Watch for dead loops in graph traversals
+**Finding bottlenecks:**
+- Run `python -m cProfile your_script.py` to see which functions are slow
+- Add timing prints to measure specific sections

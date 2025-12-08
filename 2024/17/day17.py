@@ -109,12 +109,64 @@ def part1():
     return result
 
 def part2():
-    """Solve part 2."""
+    """Solve part 2 - find the lowest A that makes the program output itself."""
     input_file = os.path.join(sys.path[0], 'input.txt')
     reg_a, reg_b, reg_c, program = parse_input(input_file)
 
-    # Part 2 implementation will go here
-    return None
+    target = program
+    print(f"Target output: {target}")
+    print(f"Program length: {len(program)}")
+
+    # The program processes A in a loop, dividing it by 8 each iteration (looking at opcode 0 with operand 3)
+    # Each iteration outputs one value based on the lower bits of A
+    # We need to work backwards: build A from the output we want
+
+    # Strategy: Build A digit by digit in base 8 (octal)
+    # Start from the end of the target output and work backwards
+
+    def find_a_recursive(target_output, current_a=0, depth=0):
+        """Recursively find A that produces the target output."""
+        if depth == len(target_output):
+            # Check if this A actually works
+            output = run_program(current_a, 0, 0, program)
+            if output == target_output:
+                return current_a
+            return None
+
+        # We're building A from most significant to least significant
+        # Try all possible 3-bit values (0-7) for this position
+        for digit in range(8):
+            candidate_a = (current_a << 3) | digit
+
+            # Test if this candidate produces the correct output so far
+            output = run_program(candidate_a, 0, 0, program)
+
+            # Check if the output matches what we need
+            # We're building from the end, so compare from the end
+            expected_len = depth + 1
+            if len(output) >= expected_len:
+                # Check if the last 'expected_len' outputs match the last 'expected_len' of target
+                if output[-expected_len:] == target_output[-expected_len:]:
+                    result = find_a_recursive(target_output, candidate_a, depth + 1)
+                    if result is not None:
+                        return result
+
+        return None
+
+    # Try to find A starting from 0
+    result = find_a_recursive(target)
+
+    if result:
+        # Verify the result
+        output = run_program(result, 0, 0, program)
+        print(f"Found A = {result}")
+        print(f"Output: {output}")
+        print(f"Target: {target}")
+        print(f"Match: {output == target}")
+        return result
+    else:
+        print("No solution found!")
+        return None
 
 if __name__ == "__main__":
     print("=" * 50)
@@ -127,4 +179,10 @@ if __name__ == "__main__":
     print("Part 1:")
     print("=" * 50)
     result1 = part1()
+    print()
+
+    print("=" * 50)
+    print("Part 2:")
+    print("=" * 50)
+    result2 = part2()
     print()

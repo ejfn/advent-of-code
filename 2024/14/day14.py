@@ -100,12 +100,92 @@ def part1():
 
     return safety_factor
 
+def visualize(positions, width, height):
+    """Create a visual representation of robot positions."""
+    grid = [['.' for _ in range(width)] for _ in range(height)]
+    for x, y in positions:
+        if grid[y][x] == '.':
+            grid[y][x] = '1'
+        else:
+            grid[y][x] = str(min(9, int(grid[y][x]) + 1))
+    return '\n'.join(''.join(row) for row in grid)
+
+def has_large_cluster(positions, min_cluster_size=30):
+    """Check if there's a large cluster of robots (potential tree pattern)."""
+    position_set = set(positions)
+    visited = set()
+
+    def bfs(start):
+        """Count connected robots using BFS."""
+        queue = [start]
+        visited.add(start)
+        count = 1
+
+        while queue:
+            x, y = queue.pop(0)
+            # Check 8-connected neighbors
+            for dx in [-1, 0, 1]:
+                for dy in [-1, 0, 1]:
+                    if dx == 0 and dy == 0:
+                        continue
+                    neighbor = (x + dx, y + dy)
+                    if neighbor in position_set and neighbor not in visited:
+                        visited.add(neighbor)
+                        queue.append(neighbor)
+                        count += 1
+        return count
+
+    for pos in positions:
+        if pos not in visited:
+            cluster_size = bfs(pos)
+            if cluster_size >= min_cluster_size:
+                return True
+    return False
+
+def has_symmetric_pattern(positions, width, height):
+    """Check if positions form a somewhat symmetric pattern (like a tree)."""
+    # Count robots in each row
+    row_counts = {}
+    for x, y in positions:
+        row_counts[y] = row_counts.get(y, 0) + 1
+
+    # Check if there's a concentration of robots in consecutive rows
+    if len(row_counts) < 10:
+        return False
+
+    max_consecutive = 0
+    current_consecutive = 0
+    sorted_rows = sorted(row_counts.keys())
+
+    for i in range(len(sorted_rows)):
+        if row_counts[sorted_rows[i]] >= 3:
+            current_consecutive += 1
+            max_consecutive = max(max_consecutive, current_consecutive)
+        else:
+            current_consecutive = 0
+
+    return max_consecutive >= 10
+
 def part2():
-    """Solve part 2."""
+    """Solve part 2 - find when robots form a Christmas tree."""
     with open(os.path.join(sys.path[0], 'input.txt'), 'r') as f:
         text = f.read()
 
-    # Part 2 implementation will go here
+    robots = parse_input(text)
+    width, height = 101, 103
+
+    # Search for the Christmas tree pattern
+    # Try up to 10000 seconds
+    for seconds in range(1, 10000):
+        positions = simulate(robots, width, height, seconds)
+
+        # Check if robots form a large cluster (potential tree)
+        if has_large_cluster(positions, min_cluster_size=100):
+            # Print the visualization to verify
+            print(f"\nPotential pattern at {seconds} seconds:")
+            print(visualize(positions, width, height))
+            return seconds
+
     return 0
 
 if __name__ == "__main__":

@@ -57,3 +57,4 @@ YYYY/
 - **Over-Complexity**: Skip pair-wise/vector math; use edge scans (e.g., track max_height per direction) with bounds checks.
 - **Parsing Oversights**: Convert to nums early; print to confirm.
 - **Iteration Control**: Use todos for phases (e.g., "Parse example" → "One edge" → "Full Part 1"); re-read if stuck.
+- **Brute Force vs. Structure**: When finding defects in structured systems (circuits, graphs, networks), analyze expected patterns rather than testing all combinations. Define structural invariants, find violations directly. If brute force >10s, look for domain knowledge (known algorithms, mathematical properties, structural rules).

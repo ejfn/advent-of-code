@@ -42,6 +42,31 @@ def find_shortest_path(corrupted, grid_size):
 
     return -1  # No path found
 
+def find_first_blocking_byte(coordinates, grid_size):
+    """Find the first byte that blocks the path using binary search."""
+    # Binary search to find the first blocking byte
+    left = 0
+    right = len(coordinates) - 1
+    result = None
+
+    while left <= right:
+        mid = (left + right) // 2
+
+        # Check if path exists with first mid+1 bytes fallen
+        corrupted = set(coordinates[:mid + 1])
+        path_exists = find_shortest_path(corrupted, grid_size) != -1
+
+        if path_exists:
+            # Path still exists, need to drop more bytes
+            left = mid + 1
+        else:
+            # Path is blocked, this might be our answer
+            result = coordinates[mid]
+            # But check if we can find an earlier blocking byte
+            right = mid - 1
+
+    return result
+
 def run_example():
     """Test with the example from the puzzle."""
     example_input = """5,4
@@ -76,16 +101,23 @@ def run_example():
         x, y = map(int, line.split(','))
         coordinates.append((x, y))
 
-    # Take first 12 bytes for the example
+    # Part 1: Take first 12 bytes for the example
     corrupted = set(coordinates[:12])
 
-    print("Example: First 12 bytes fallen")
+    print("Example Part 1: First 12 bytes fallen")
     print(f"Corrupted coordinates: {corrupted}")
 
     # Find shortest path on 7x7 grid (0-6)
     result = find_shortest_path(corrupted, 6)
     print(f"Shortest path: {result} steps")
     print(f"Expected: 22 steps")
+    print()
+
+    # Part 2: Find first blocking byte
+    print("Example Part 2: Finding first blocking byte")
+    blocking_byte = find_first_blocking_byte(coordinates, 6)
+    print(f"First blocking byte: {blocking_byte}")
+    print(f"Expected: 6,1")
     print()
 
 def part1():
@@ -102,9 +134,14 @@ def part1():
     return result
 
 def part2():
-    """Solve Part 2."""
-    # To be implemented after Part 1 is complete
-    pass
+    """Solve Part 2: Find first byte that blocks the path."""
+    input_file = os.path.join(sys.path[0], 'input.txt')
+    coordinates = parse_input(input_file)
+
+    # Find the first blocking byte
+    blocking_byte = find_first_blocking_byte(coordinates, 70)
+
+    return blocking_byte
 
 if __name__ == "__main__":
     print("=== Testing Example ===")
@@ -114,6 +151,6 @@ if __name__ == "__main__":
     result1 = part1()
     print(f"Minimum steps to reach exit: {result1}")
 
-    # print("\n=== Part 2 ===")
-    # result2 = part2()
-    # print(f"Part 2 result: {result2}")
+    print("\n=== Part 2 ===")
+    result2 = part2()
+    print(f"First blocking byte: {result2[0]},{result2[1]}")

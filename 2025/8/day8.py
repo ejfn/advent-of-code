@@ -80,8 +80,34 @@ def part2():
     with open(input_path) as f:
         lines = f.read().strip().split('\n')
 
-    # TODO: Implement part 2
-    return 0
+    # Parse junction box positions
+    boxes = []
+    for line in lines:
+        x, y, z = map(int, line.split(','))
+        boxes.append((x, y, z))
+
+    n = len(boxes)
+
+    # Calculate all pairwise distances and store in a min heap
+    distances = []
+    for i in range(n):
+        for j in range(i + 1, n):
+            dist_sq = distance_squared(boxes[i], boxes[j])
+            heapq.heappush(distances, (dist_sq, i, j))
+
+    # Union-Find to track circuits
+    uf = UnionFind(n)
+
+    # Keep connecting until we have only one circuit
+    last_i, last_j = -1, -1
+    while len(uf.get_circuit_sizes()) > 1 and distances:
+        dist_sq, i, j = heapq.heappop(distances)
+        if uf.union(i, j):
+            last_i, last_j = i, j
+
+    # Return product of X coordinates of last two boxes connected
+    result = boxes[last_i][0] * boxes[last_j][0]
+    return result
 
 if __name__ == "__main__":
     print("Part 1:", part1())

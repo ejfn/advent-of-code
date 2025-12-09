@@ -53,6 +53,8 @@ Use this checklist for both the GitHub Action and local agents. Assume the envir
 - Always keep puzzle, input, and solution files together; automation assumes they live under the same day folder.
 - If you install a new dependency, update `requirements.txt` when you introduce it.
 - Before wrapping up a local run, check `git status` and make sure the entire day folder (plus `puzzle.md`/`input.txt`) is staged for the eventual commit.
+- When solving multiple days in one request, handle them sequentially (finish coding/testing/submitting for a day before touching the next). Parallel progress across days makes submissions and tracking messy.
+- When creating commits, explicitly thank and acknowledge the AI model that assisted in the session within the commit message so reviewers know which agent produced the work.
 
 ## Problem-Solving Workflow
 

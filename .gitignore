@@ -14,3 +14,4 @@ ENV/
 .pytest_cache/
 .ipynb_checkpoints/
 .grok/
+.env

@@ -4,3 +4,5 @@ binarytree
 requests
 beautifulsoup4
 lxml
+sympy
+networkx

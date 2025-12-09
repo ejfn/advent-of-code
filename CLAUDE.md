@@ -46,6 +46,8 @@ Use this checklist for both the GitHub Action and local agents. Assume the envir
 7. Re-run Step 2 before tackling Part 2 (the site text often changes).
 8. Implement `part2()`, re-test, re-submit, and capture the results as you did for Part 1.
 
+**Local tip:** When running the automation manually, source `.env` (which holds `AOC_SESSION`) before Step 2 so the script can authenticate, e.g. `set -a; source .env; set +a`. Even on a local run, still finish Steps 6 and 8 (submit answers) once you have the results; skipping the commit is fine, but never skip submissions.
+
 **Critical reminders:**
 - Never skip the filename pattern—AoC automation expects `day${DAY}.py`.
 - Always keep puzzle, input, and solution files together; automation assumes they live under the same day folder.

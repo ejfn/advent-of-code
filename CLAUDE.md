@@ -1,8 +1,6 @@
 # CLAUDE.md
 
-Guidance for Claude Code when working with Advent of Code solutions in this repository.
-
-**Efficiency Note**: Focus on Workflow + Parsing for most days; skip others unless needed. Always prioritize example testing to cut iterations.
+Guidance for Claude Code when working with Advent of Code solutions.
 
 ## Repository Structure
 
@@ -16,45 +14,38 @@ YYYY/
 **Code Pattern:**
 - Load input: `os.path.join(sys.path[0], 'input.txt')`
 - Implement: `part1()` and `part2()` functions
-- Output: Print results directly from `if __name__ == "__main__"`
-- Libraries: Any Python package can be installed and used as needed
-  - Common: `os`, `sys`, `itertools`, `numpy`, `scipy`, `networkx`, `sympy`
-  - Install with: `pip install <package>`
+- Output: Print results from `if __name__ == "__main__"`
+- Libraries: Any Python package (`os`, `sys`, `itertools`, `numpy`, `networkx`, `sympy`, etc.)
 - No shared utilities between days
 
 **Running:** `python YYYY/N/dayN.py`
 
 ## Problem-Solving Workflow
 
-1. **Read problem carefully** - Don't assume input format; summarize core mechanics (e.g., "What counts as visible?").
-2. **Parse and test example first** - Hardcode/create sample input in a `run_example()` function. Print parsed structure (e.g., grid shape/values) and validate against expected outputs before full input.
-3. **Test incrementally** - Verify each part works; re-check parsing on errors.
-4. **Watch error messages** - Unexpected values often indicate parsing issues.
+1. **Read carefully** - Don't assume input format. Summarize the core mechanics in your own words before coding.
+2. **Example first** - Create `run_example()` with hardcoded sample input. Print parsed structures and validate against expected output before running on full input.
+3. **Test incrementally** - Verify each part works. On errors, re-check parsing first.
+4. **Performance target** - No puzzle should take >30 seconds. If slow, rethink the algorithm.
 
 ## Parsing Tips
 
-**Read input format carefully:**
-- Parse char-by-char or by whitespace; handle empty lines/spaces.
+- Read format carefully: char-by-char vs whitespace-separated, handle empty lines.
+- Debug parsing first: print parsed data on example, verify structure (grid dims, value ranges).
+- For grids: `grid = [[int(c) for c in line] for line in lines if line.strip()]`
 
-**Debug parsing first:**
-- Print parsed data on example; verify expectations.
-- For numeric grids: `grid = [[int(c) for c in line] for line in lines if line.strip()]`; print first 2-3 rows.
+## Performance Tips (When Slow)
 
-## Performance Tips (Apply if Slow/Hanging)
+**Quick fixes:**
+- `set()` for O(1) lookups
+- `collections.deque` for BFS queues
+- `@functools.cache` for recursive memoization
 
-**Common optimizations:**
-- `set()` for lookups; `collections.deque` for queues; `@cache` for recursion; `numpy` for arrays.
+**Algorithm issues:**
+- If >10s, brute force won't work. Look for: known algorithms, mathematical properties, structural patterns.
+- Avoid O(n² × cost) - preprocess to make inner checks O(1) via prefix sums, sparse tables, coordinate compression.
+- Sort candidates by potential value descending; early-terminate when remaining can't beat best.
 
-**If hangs:**
-- Check infinite loops with prints.
-- Avoid large combos (n>15); try greedy/DP/math.
-- Profile: `python -m cProfile dayN.py`; time sections.
+## Lessons from Past Days
 
-## Common Pitfalls (Lessons from Past Days)
-
-- **Misreading Mechanics** (e.g., Day 8: antennas vs. tree visibility): Summarize post-read; test against examples.
-- **Example Gaps**: Always `run_example()` with prints; verify grid dims (e.g., Day 8: 99x99 heights 0-9).
-- **Over-Complexity**: Skip pair-wise/vector math; use edge scans (e.g., track max_height per direction) with bounds checks.
-- **Parsing Oversights**: Convert to nums early; print to confirm.
-- **Iteration Control**: Use todos for phases (e.g., "Parse example" → "One edge" → "Full Part 1"); re-read if stuck.
-- **Brute Force vs. Structure**: When finding defects in structured systems (circuits, graphs, networks), analyze expected patterns rather than testing all combinations. Define structural invariants, find violations directly. If brute force >10s, look for domain knowledge (known algorithms, mathematical properties, structural rules).
+- **2024 Day 24 Part 2**: When finding defects in structured systems (circuits, graphs), analyze expected patterns rather than testing all combinations. Define structural invariants, find violations directly.
+- **2025 Day 9 Part 2**: When checking O(n²) candidate pairs, don't let each validation be O(area). Preprocess data structures for O(1) checks. Use coordinate compression. Sort by potential and early-terminate.

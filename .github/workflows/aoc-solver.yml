@@ -88,7 +88,8 @@ jobs:
                - If only Part 1 is solved: Skip to step 8 (Part 2)
                - If neither solved: Continue to step 4
             4. Write solution to day${{ steps.set_day.outputs.day }}.py (NOT test_day*.py!)
-            5. Test it with 120s timeout: `timeout 120 python ${{ steps.set_day.outputs.year }}/${{ steps.set_day.outputs.day }}/day${{ steps.set_day.outputs.day }}.py`
+            5. Test with 30s timeout: `timeout 30 python ${{ steps.set_day.outputs.year }}/${{ steps.set_day.outputs.day }}/day${{ steps.set_day.outputs.day }}.py`
+               - If timeout: your algorithm is too slow. DON'T just retry - rethink the approach. Use better data structures (prefix sums, sparse tables), coordinate compression, or find mathematical patterns. See CLAUDE.md Performance Tips.
             6. Submit answer: `python aoc-automation/submit_answer.py <part> <answer> $DAY $YEAR`
             7. READ the response - if wrong fix & retry, if correct:
                - Git add all files in folder: `git add ${{ steps.set_day.outputs.year }}/${{ steps.set_day.outputs.day }}/`

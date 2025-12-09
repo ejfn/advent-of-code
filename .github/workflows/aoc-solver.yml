@@ -71,38 +71,14 @@ jobs:
           prompt: |
             Solve Advent of Code ${{ steps.set_day.outputs.year }} Day ${{ steps.set_day.outputs.day }}.
 
+            Follow the "Daily Automation Instructions" in CLAUDE.md (already present in the repository root). The key environment variables are:
             YEAR=${{ steps.set_day.outputs.year }}
             DAY=${{ steps.set_day.outputs.day }}
             AOC_SESSION=${{ secrets.AOC_SESSION_COOKIE }}
 
-            **EXACT filenames (DO NOT CHANGE):**
-            - Puzzle: `${{ steps.set_day.outputs.year }}/${{ steps.set_day.outputs.day }}/puzzle.md`
-            - Input: `${{ steps.set_day.outputs.year }}/${{ steps.set_day.outputs.day }}/input.txt`
-            - Solution: `${{ steps.set_day.outputs.year }}/${{ steps.set_day.outputs.day }}/day${{ steps.set_day.outputs.day }}.py` ← MUST use this exact name!
+            After each correct answer submission (Part 1 and Part 2), immediately:
+            - `git add -A`
+            - commit and push before moving on to the next part
 
-            **Steps:**
-            1. Read CLAUDE.md for guidelines
-            2. Fetch puzzle: `FORCE_DAY=$DAY FORCE_YEAR=$YEAR python aoc-automation/solve_daily.py`
-            3. Read puzzle.md and check if parts are already solved
-               - If puzzle.md shows "Your puzzle answer was..." for BOTH parts: YOU'RE DONE! Exit immediately.
-               - If only Part 1 is solved: Skip to step 8 (Part 2)
-               - If neither solved: Continue to step 4
-            4. Write solution to day${{ steps.set_day.outputs.day }}.py (NOT test_day*.py!)
-            5. Test with 30s timeout: `timeout 30 python ${{ steps.set_day.outputs.year }}/${{ steps.set_day.outputs.day }}/day${{ steps.set_day.outputs.day }}.py`
-               - If timeout: your algorithm is too slow. DON'T just retry - rethink the approach. Use better data structures (prefix sums, sparse tables), coordinate compression, or find mathematical patterns. See CLAUDE.md Performance Tips.
-            6. Submit answer: `python aoc-automation/submit_answer.py <part> <answer> $DAY $YEAR`
-            7. READ the response - if wrong fix & retry, if correct:
-               - Git add all files in folder: `git add ${{ steps.set_day.outputs.year }}/${{ steps.set_day.outputs.day }}/`
-               - Commit and push, then continue
-            8. Re-fetch puzzle for Part 2: `FORCE_DAY=$DAY FORCE_YEAR=$YEAR python aoc-automation/solve_daily.py`
-            9. Implement part2() in same file, test, submit:
-               - Git add all files in folder: `git add ${{ steps.set_day.outputs.year }}/${{ steps.set_day.outputs.day }}/`
-               - Commit and push
-
-            **CRITICAL:**
-            - If BOTH parts already solved: DO NOTHING and exit
-            - Use EXACT filename: day${{ steps.set_day.outputs.day }}.py (not test_*.py!)
-            - ALWAYS git add the entire day folder to commit all files (dayN.py, input.txt, etc.)
-            - If you install new packages with pip: update requirements.txt and git add it too
-            - Git push after EVERY correct answer
+            Use only the allowed tools and keep commits/pushes in sync with these instructions.
           claude_args: "--allowedTools Read,Write,Edit,Bash,Glob,Grep --max-turns 50"

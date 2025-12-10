@@ -81,4 +81,7 @@ jobs:
             - commit and push before moving on to the next part
 
             Use only the allowed tools and keep commits/pushes in sync with these instructions.
-          claude_args: "--allowedTools Read,Write,Edit,Bash,Glob,Grep --max-turns 50"
+          claude_args: >-
+            --allowedTools Read,Write,Edit,Bash,Glob,Grep
+            --max-turns 50
+            --model claude-opus-4-5-20251101

@@ -87,3 +87,4 @@ Add a short note here whenever a day's solution required multiple iterations or 
 
 - **2024 Day 24 Part 2**: When finding defects in structured systems (circuits, graphs), analyze expected patterns rather than testing all combinations. Define structural invariants, find violations directly.
 - **2025 Day 9 Part 2**: When checking O(n²) candidate pairs, don't let each validation be O(area). Preprocess data structures for O(1) checks. Use coordinate compression. Sort by potential and early-terminate.
+- **2025 Day 10**: For constraint satisfaction problems involving linear toggling (modulo 2) or integer counts with a minimization objective, immediately use an SMT solver like `z3`. It is much faster to implement and less error-prone than manual Gaussian elimination or search/DP.

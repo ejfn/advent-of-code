@@ -1,179 +1,161 @@
-import os
+
 import sys
+import os
 import re
+import z3
 
-def parse_line(line):
-    """Parse a line to extract target state, buttons, and joltage (ignored)."""
-    # Extract the indicator diagram [...]
-    diagram_match = re.search(r'\[([.#]+)\]', line)
-    if not diagram_match:
-        return None
-
-    diagram = diagram_match.group(1)
-    target = [1 if c == '#' else 0 for c in diagram]
-    n_lights = len(target)
-
-    # Extract button configurations (...)
-    buttons = []
-    button_matches = re.findall(r'\(([0-9,]+)\)', line)
-    for match in button_matches:
-        indices = [int(x) for x in match.split(',')]
-        buttons.append(indices)
-
-    return target, buttons, n_lights
-
-def solve_gf2(target, buttons, n_lights):
-    """
-    Solve the system of linear equations over GF(2).
-    We want to find x such that Ax = b (mod 2), where:
-    - A is the matrix where A[i][j] = 1 if button j toggles light i
-    - x is the number of times each button is pressed (mod 2)
-    - b is the target state
-
-    Returns the minimum number of button presses (sum of x values).
-    """
-    n_buttons = len(buttons)
-
-    # Build the matrix A where A[light][button] = 1 if button toggles light
-    A = [[0] * n_buttons for _ in range(n_lights)]
-    for btn_idx, btn in enumerate(buttons):
-        for light in btn:
-            A[light][btn_idx] = 1
-
-    # Augmented matrix [A | b]
-    aug = [A[i][:] + [target[i]] for i in range(n_lights)]
-
-    # Gaussian elimination over GF(2)
-    pivot_col = []
-    row = 0
-    for col in range(n_buttons):
-        # Find pivot
-        pivot_row = None
-        for r in range(row, n_lights):
-            if aug[r][col] == 1:
-                pivot_row = r
-                break
-
-        if pivot_row is None:
-            continue
-
-        # Swap rows
-        aug[row], aug[pivot_row] = aug[pivot_row], aug[row]
-        pivot_col.append(col)
-
-        # Eliminate
-        for r in range(n_lights):
-            if r != row and aug[r][col] == 1:
-                for c in range(n_buttons + 1):
-                    aug[r][c] ^= aug[row][c]
-
-        row += 1
-
-    # Check for inconsistency
-    for r in range(row, n_lights):
-        if aug[r][n_buttons] == 1:
-            return None  # No solution
-
-    # Back-substitution to find solution with minimum button presses
-    # We have free variables, so we need to find the solution with min sum
-    free_vars = []
-    for col in range(n_buttons):
-        if col not in pivot_col:
-            free_vars.append(col)
-
-    if not free_vars:
-        # Unique solution
-        solution = [0] * n_buttons
-        for r, col in enumerate(pivot_col):
-            solution[col] = aug[r][n_buttons]
-        return sum(solution)
-
-    # Try all combinations of free variables
-    min_presses = float('inf')
-    for mask in range(1 << len(free_vars)):
-        solution = [0] * n_buttons
-
-        # Set free variables
-        for i, var in enumerate(free_vars):
-            solution[var] = (mask >> i) & 1
-
-        # Compute dependent variables
-        for r in range(len(pivot_col)):
-            col = pivot_col[r]
-            val = aug[r][n_buttons]
-            for c in range(n_buttons):
-                if c != col:
-                    val ^= (aug[r][c] * solution[c])
-            solution[col] = val
-
-        # Verify solution
-        valid = True
-        for light in range(n_lights):
-            state = 0
-            for btn_idx, btn in enumerate(buttons):
-                if solution[btn_idx] == 1 and light in btn:
-                    state ^= 1
-            if state != target[light]:
-                valid = False
-                break
-
-        if valid:
-            min_presses = min(min_presses, sum(solution))
-
-    return min_presses if min_presses != float('inf') else None
-
-def part1():
-    with open(os.path.join(sys.path[0], 'input.txt'), 'r') as f:
-        lines = [line.strip() for line in f if line.strip()]
-
-    total = 0
+def parse_input(content):
+    machines = []
+    # Line format: [diagram] (buttons...) {targets}
+    # Example: [.##.] (3) (1,3) (2) (2,3) (0,2) (0,1) {3,5,4,7}
+    
+    lines = content.strip().split('\n')
     for line in lines:
-        parsed = parse_line(line)
-        if parsed is None:
+        if not line.strip():
             continue
+            
+        # Parse Diagram
+        diagram_match = re.search(r'\[([.#]+)\]', line)
+        if not diagram_match:
+            continue
+        diagram_str = diagram_match.group(1)
+        diagram = [1 if c == '#' else 0 for c in diagram_str]
+        
+        # Parse Targets
+        targets_match = re.search(r'\{([\d,]+)\}', line)
+        if not targets_match:
+            continue
+        targets = [int(x) for x in targets_match.group(1).split(',')]
+        
+        # Parse Buttons
+        # Find all (numbers) groups
+        # We can remove the diagram and targets parts to process buttons safely
+        # Or just find all parenthesized groups
+        
+        # A clearer way: extract the middle part or use global findall
+        # The buttons are between ] and {
+        middle_part = line[line.find(']')+1 : line.find('{')]
+        button_matches = re.findall(r'\(([\d,]+)\)', middle_part)
+        buttons = []
+        for b_str in button_matches:
+            if not b_str.strip(): # handle () if possible? though puzzle says one or more schematics
+                buttons.append([])
+            else:
+                buttons.append([int(x) for x in b_str.split(',')])
+            
+        machines.append({
+            'diagram': diagram,
+            'buttons': buttons,
+            'targets': targets
+        })
+    return machines
 
-        target, buttons, n_lights = parsed
-        min_presses = solve_gf2(target, buttons, n_lights)
-        if min_presses is not None:
-            total += min_presses
+def solve_part1_machine(machine):
+    # Diagram is boolean target
+    # Buttons toggle specified lights
+    # x_i in {0, 1}
+    # sum(button_effects) % 2 == diagram
+    
+    diagram = machine['diagram']
+    buttons = machine['buttons']
+    num_lights = len(diagram)
+    num_buttons = len(buttons)
+    
+    opt = z3.Optimize()
+    x = [z3.Int(f'x_{i}') for i in range(num_buttons)]
+    
+    for xi in x:
+        opt.add(xi >= 0)
+        opt.add(xi <= 1)
+        
+    for light_idx in range(num_lights):
+        # build sum of x_i for buttons that affect this light
+        terms = []
+        for btn_idx, btn_affects in enumerate(buttons):
+            if light_idx in btn_affects:
+                terms.append(x[btn_idx])
+        
+        if not terms:
+            current_val = 0
+        else:
+            current_val = z3.Sum(terms)
+        
+        # target is diagram[light_idx]
+        # constraint: current_val % 2 == target
+        opt.add(current_val % 2 == diagram[light_idx])
+        
+    # Minimize sum of presses
+    opt.minimize(z3.Sum(x))
+    
+    if opt.check() == z3.sat:
+        model = opt.model()
+        return sum(model[xi].as_long() for xi in x)
+    else:
+        # Should not happen based on problem description
+        return 0
 
+def solve_part2_machine(machine):
+    # Targets are integers
+    # Buttons add 1 to specified counters
+    # x_i >= 0
+    # sum(button_effects) == targets
+    
+    targets = machine['targets']
+    buttons = machine['buttons']
+    num_counters = len(targets)
+    num_buttons = len(buttons)
+    
+    opt = z3.Optimize()
+    x = [z3.Int(f'x_{i}') for i in range(num_buttons)]
+    
+    for xi in x:
+        opt.add(xi >= 0)
+        
+    for counter_idx in range(num_counters):
+        terms = []
+        for btn_idx, btn_affects in enumerate(buttons):
+            if counter_idx in btn_affects:
+                terms.append(x[btn_idx])
+        
+        if not terms:
+            # If no button affects this counter, and target is > 0, unsat
+            # But we can add the constraint 0 == target
+             opt.add(0 == targets[counter_idx])
+        else:
+            opt.add(z3.Sum(terms) == targets[counter_idx])
+            
+    opt.minimize(z3.Sum(x))
+    
+    if opt.check() == z3.sat:
+        model = opt.model()
+        return sum(model[xi].as_long() for xi in x)
+    else:
+        return 0
+
+def part1(machines):
+    total = 0
+    for i, m in enumerate(machines):
+        res = solve_part1_machine(m)
+        total += res
     return total
 
-def part2():
-    # Part 2 will be revealed after Part 1
-    return 0
+def part2(machines):
+    total = 0
+    for i, m in enumerate(machines):
+        res = solve_part2_machine(m)
+        total += res
+    return total
 
-def run_example():
-    """Test with the example from the puzzle."""
-    examples = [
-        "[.##.] (3) (1,3) (2) (2,3) (0,2) (0,1) {3,5,4,7}",
-        "[...#.] (0,2,3,4) (2,3) (0,4) (0,1,2) (1,2,3,4) {7,5,12,7,2}",
-        "[.###.#] (0,1,2,3,4) (0,3,4) (0,1,2,4,5) (1,2) {10,11,11,5,10,5}"
-    ]
-
-    expected = [2, 3, 2]
-
-    for i, line in enumerate(examples):
-        parsed = parse_line(line)
-        if parsed is None:
-            print(f"Example {i+1}: Failed to parse")
-            continue
-
-        target, buttons, n_lights = parsed
-        print(f"Example {i+1}: {n_lights} lights, {len(buttons)} buttons")
-        print(f"  Target: {target}")
-        print(f"  Buttons: {buttons}")
-
-        min_presses = solve_gf2(target, buttons, n_lights)
-        print(f"  Result: {min_presses} (expected {expected[i]})")
-        print()
+def parse_args():
+    # Helper to support running specific parts if needed, though usually we run all
+    pass
 
 if __name__ == "__main__":
-    print("=== Testing Examples ===")
-    run_example()
-
-    print("\n=== Part 1 ===")
-    print(part1())
-
-    print("\n=== Part 2 ===")
-    print(part2())
+    infile = os.path.join(sys.path[0], 'input.txt')
+    with open(infile, 'r') as f:
+        content = f.read()
+        
+    machines = parse_input(content)
+    
+    print("Part 1:", part1(machines))
+    print("Part 2:", part2(machines))

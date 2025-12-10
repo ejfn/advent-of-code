@@ -6,3 +6,4 @@ beautifulsoup4
 lxml
 sympy
 networkx
+z3-solver

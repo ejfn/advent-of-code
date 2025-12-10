@@ -33,7 +33,7 @@ class AoCClient:
     def get_puzzle_markdown(self, day: int) -> str:
         """
         Fetch puzzle description as markdown.
-        Converts HTML to clean text for Claude.
+        Converts HTML to clean text for AI.
         """
         html = self.get_puzzle_html(day)
         soup = BeautifulSoup(html, 'html.parser')
@@ -94,7 +94,7 @@ class AoCClient:
         response = self.session.post(url, data=data, headers=headers)
         response.raise_for_status()
 
-        # Return the full HTML - let Claude parse it
+        # Return the full HTML - let AI parse it
         return {
             'message': response.text
         }

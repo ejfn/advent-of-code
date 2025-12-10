@@ -41,7 +41,7 @@ def main():
     try:
         result = client.submit_answer(day, part, answer)
 
-        # Extract the article content for Claude to read
+        # Extract the article content for AI to read
         from bs4 import BeautifulSoup
         soup = BeautifulSoup(result['message'], 'html.parser')
         article = soup.find('article')

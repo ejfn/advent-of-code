@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 Daily AoC Solver Orchestrator
-Fetches puzzle, prepares files, and coordinates with Claude Code Action.
+Fetches puzzle, prepares files, and coordinates with the solver.
 """
 
 import os
@@ -71,13 +71,13 @@ def main():
         guidelines = claude_md.read_text()
         print(f"✓ Loaded guidelines from CLAUDE.md")
     else:
-        print(f"⚠️  CLAUDE.md not found, Claude will solve without project guidelines")
+        print(f"⚠️  CLAUDE.md not found, AI will solve without project guidelines")
 
-    # No longer need to create prompt.txt - Claude reads files directly
+    # No longer need to create prompt.txt - AI reads files directly
 
     # Export environment variables for workflow
     print()
-    print("📋 Environment variables for workflow:")
+    print("📋 Environment variables:")
     print(f"YEAR={year}")
     print(f"DAY={day}")
     print(f"WORK_DIR={work_dir}")
@@ -94,7 +94,7 @@ def main():
     print("✅ Setup complete!")
     print()
     print("Next steps:")
-    print("1. Claude Code Action will generate the solution")
+    print("1. AI Agent will generate the solution")
     print("2. Test the solution by running it")
     print("3. Submit the answer to AoC")
 

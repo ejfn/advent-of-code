@@ -1,6 +1,7 @@
 ---
 name: aoc-daily-solver
 description: Automate Advent of Code daily puzzle solving - fetch puzzle, implement solution, test, and submit answers
+allowed-tools: Bash, Read, Write, Edit, Grep, Glob, LS
 ---
 
 # AoC Daily Solver
@@ -24,7 +25,7 @@ Automate the complete workflow for solving Advent of Code puzzles: fetch puzzle 
 Follow this workflow for both automated (GitHub Action) and local solving:
 
 ### 1. Read Guidelines
-- Read [reference.md](reference.md) for detailed problem-solving approach
+- Read "Problem-Solving Workflow" below for detailed problem-solving approach
 - Understand the repository structure and coding patterns
 
 ### 2. Load Environment Variables (Local Execution Only)
@@ -62,7 +63,7 @@ FORCE_DAY=$DAY FORCE_YEAR=$YEAR python3 .claude/skills/aoc-daily-solver/scripts/
 ```bash
 timeout 30 python3 ${YEAR}/${DAY}/day${DAY}.py
 ```
-- If it times out, rethink the algorithm (see Performance Tips in reference.md)
+- If it times out, rethink the algorithm (see "Performance Tips" below)
 - Test with example input first using `run_example()`
 
 ### 7. Submit Part 1
@@ -140,7 +141,7 @@ Add a short note here whenever a day's solution required multiple iterations or 
 
 ## Supporting Files
 
-- [reference.md](reference.md) - Repository structure and global conventions
+- [CLAUDE.md](../../../CLAUDE.md) - Repository structure and global conventions
 - [scripts/aoc_client.py](scripts/aoc_client.py) - HTTP client for AoC API
 - [scripts/solve_daily.py](scripts/solve_daily.py) - Puzzle fetcher
 - [scripts/submit_answer.py](scripts/submit_answer.py) - Answer submitter

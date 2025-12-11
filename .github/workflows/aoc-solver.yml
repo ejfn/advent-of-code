@@ -71,16 +71,16 @@ jobs:
           prompt: |
             Solve Advent of Code ${{ steps.set_day.outputs.year }} Day ${{ steps.set_day.outputs.day }}.
 
-            Follow the "Daily Automation Instructions" in CLAUDE.md (already present in the repository root). The key environment variables are:
+            IMPORTANT: Use the skill at `.claude/skills/aoc-daily-solver/SKILL.md` - it contains the complete automation workflow.
+
+            The key environment variables are already set:
             YEAR=${{ steps.set_day.outputs.year }}
             DAY=${{ steps.set_day.outputs.day }}
-            AOC_SESSION=${{ secrets.AOC_SESSION_COOKIE }}
+            AOC_SESSION is available from secrets (no need to load .env)
 
             After each correct answer submission (Part 1 and Part 2), immediately:
             - `git add -A`
             - commit and push before moving on to the next part
-
-            Use only the allowed tools and keep commits/pushes in sync with these instructions.
           claude_args: >-
             --allowedTools Read,Write,Edit,Bash,Glob,Grep
             --max-turns 50

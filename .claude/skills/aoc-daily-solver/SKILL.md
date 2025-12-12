@@ -73,10 +73,21 @@ python3 .claude/skills/aoc-daily-solver/scripts/submit_answer.py 1 <answer> $DAY
 - Read the response carefully
 - If wrong, analyze feedback and fix
 
-### 8. Re-fetch Puzzle for Part 2
-- Run Step 3 again (puzzle text often changes after Part 1)
+### 8. Re-fetch Puzzle for Part 2 (MANDATORY)
+
+**IMPORTANT**: You MUST re-fetch the puzzle after Part 1 is accepted, BEFORE implementing Part 2:
+
+```bash
+FORCE_DAY=$DAY FORCE_YEAR=$YEAR python3 .claude/skills/aoc-daily-solver/scripts/solve_daily.py
+```
+
+**Why this is mandatory:**
+- Part 2 description is only revealed after Part 1 is solved
+- The `puzzle.md` file must be updated to include Part 2 text
+- For older AoC years, AI models may have solutions in training data and could "solve" Part 2 without ever reading its description. Always re-fetch to ensure Part 2 is properly documented.
 
 ### 9. Implement and Submit Part 2
+- **First**: Read the updated `puzzle.md` to understand Part 2 requirements
 - Implement `part2()` function
 - Test again with timeout
 - Submit: `python3 .claude/skills/aoc-daily-solver/scripts/submit_answer.py 2 <answer> $DAY $YEAR`
@@ -105,6 +116,7 @@ python3 .claude/skills/aoc-daily-solver/scripts/submit_answer.py 1 <answer> $DAY
 - **Performance target**: Solutions should run in <30 seconds
 - **Test incrementally**: Verify parsing with example input first
 - **Sequential solving**: When solving multiple days, finish one completely before starting the next
+- **Mandatory re-fetch before Part 2**: After Part 1 is accepted, ALWAYS re-fetch the puzzle to get Part 2 description. This ensures `puzzle.md` documents both parts, especially important for older puzzles where AI may have training data.
 
 ## Problem-Solving Workflow
 
